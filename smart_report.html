@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block page_title %}گزارش هوشمند تحلیلی{% endblock %}
+
+{% block styles %}
+<style>
+    .report-container { background: #fff; border-radius: 24px; padding: 2rem; box-shadow: 0 4px 24px rgba(0,0,0,0.04); }
+    .report-header { text-align: center; padding-bottom: 1.5rem; border-bottom: 2px solid #f1f5f9; margin-bottom: 2rem; }
+    .report-header h2 { color: #0f2b5e; font-weight: 700; }
+    .report-header .subtitle { color: #64748b; font-size: 0.95rem; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .kpi-card { background: #f8fafc; padding: 1.2rem; border-radius: 16px; text-align: center; border: 1px solid #eef2f6; }
+    .kpi-card .number { font-size: 1.8rem; font-weight: 700; color: #0f2b5e; }
+    .kpi-card .label { font-size: 0.85rem; color: #64748b; margin-top: 0.2rem; }
+    .kpi-card .status { font-size: 0.75rem; margin-top: 0.3rem; }
+    .recommendation-card { background: #f8fafc; border-radius: 16px; padding: 1.2rem 1.5rem; margin-bottom: 0.8rem; border-right: 4px solid #3b82f6; display: flex; align-items: flex-start; gap: 1rem; }
+    .recommendation-card .icon { font-size: 1.5rem; flex-shrink: 0; }
+    .recommendation-card .content { flex: 1; }
+    .recommendation-card .content .title { font-weight: 600; color: #0f2b5e; }
+    .recommendation-card .content .desc { color: #475569; font-size: 0.9rem; margin: 0.2rem 0; }
+    .recommendation-card .content .action { background: #eef2f6; padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.8rem; display: inline-block; color: #0f2b5e; font-weight: 500; }
+    .trend-chart { background: #f8fafc; border-radius: 16px; padding: 1.5rem; margin: 1.5rem 0; }
+    .print-btn { position: fixed; bottom: 2rem; left: 2rem; z-index: 1000; background: #0f2b5e; color: #fff; border: none; padding: 0.8rem 1.5rem; border-radius: 40px; font-weight: 600; box-shadow: 0 4px 16px rgba(15,43,94,0.3); transition: all 0.3s; }
+    .print-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(15,43,94,0.4); color: #fff; }
+    @media print { .print-btn, .no-print { display: none; } .sidebar, .header, .footer { display: none; } .main-content { margin-right: 0; padding: 1rem; } .report-container { box-shadow: none; padding: 0; } }
+    @media (max-width: 768px) { .kpi-grid { grid-template-columns: 1fr 1fr; } .recommendation-card { flex-direction: column; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container" id="reportContent">
+    <div class="report-header">
+        <h2>📊 گزارش هوشمند تحلیلی</h2>
+        <div class="subtitle">
+            تاریخ گزارش: <strong>{{ jalali(record_date) }}</strong>
+            <span class="mx-2">|</span>
+            شرکت اروم تینار شیر
+        </div>
+    </div>
+
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="number">{{ "%.1f"|format(analysis.efficiency) }}%</div>
+            <div class="label">راندمان خط</div>
+            <div class="status text-{{ 'success' if analysis.efficiency > 85 else 'warning' if analysis.efficiency > 70 else 'danger' }}">
+                {{ 'عالی' if analysis.efficiency > 85 else 'متوسط' if analysis.efficiency > 70 else 'نیاز به بهبود' }}
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="number">{{ analysis.stops|int }}</div>
+            <div class="label">توقف (دقیقه)</div>
+            <div class="status text-{{ 'success' if analysis.stops < 30 else 'warning' if analysis.stops < 60 else 'danger' }}">
+                {{ 'کم' if analysis.stops < 30 else 'متوسط' if analysis.stops < 60 else 'زیاد' }}
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="number">{{ "%.0f"|format(analysis.waste) }}</div>
+            <div class="label">ضایعات (ریال)</div>
+            <div class="status text-{{ 'success' if analysis.waste < 200000 else 'warning' if analysis.waste < 500000 else 'danger' }}">
+                {{ 'کم' if analysis.waste < 200000 else 'متوسط' if analysis.waste < 500000 else 'زیاد' }}
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="number">{{ "%.1f"|format(analysis.oee) }}%</div>
+            <div class="label">اثربخشی کلی (OEE)</div>
+            <div class="status text-{{ 'success' if analysis.oee > 85 else 'warning' if analysis.oee > 70 else 'danger' }}">
+                {{ 'عالی' if analysis.oee > 85 else 'متوسط' if analysis.oee > 70 else 'نیاز به بهبود' }}
+            </div>
+        </div>
+        <div class="kpi-card">
+            <div class="number">{{ analysis.bottleneck }}</div>
+            <div class="label">گلوگاه خط</div>
+        </div>
+        <div class="kpi-card">
+            <div class="number">{{ "%.1f"|format(analysis.line_balance or 0) }}%</div>
+            <div class="label">هماهنگی خط</div>
+        </div>
+    </div>
+
+    <div class="trend-chart">
+        <h5 class="mb-3"><i class="fas fa-chart-line text-primary"></i> روند راندمان در ۷ روز اخیر</h5>
+        <canvas id="trendChart" height="120"></canvas>
+    </div>
+
+    <h5 class="mt-4 mb-3"><i class="fas fa-lightbulb text-warning"></i> راهکارهای عملی پیشنهادی</h5>
+    {% for rec in recommendations %}
+    <div class="recommendation-card">
+        <div class="icon">{{ rec.title[:2] }}</div>
+        <div class="content">
+            <div class="title">{{ rec.title[3:] }}</div>
+            <div class="desc">{{ rec.description }}</div>
+            <span class="action"><i class="fas fa-tasks me-1"></i> {{ rec.action }}</span>
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="mt-4 p-3 bg-light rounded-4">
+        <h6 class="fw-bold"><i class="fas fa-clipboard-check text-primary"></i> خلاصه اجرایی</h6>
+        <div class="row g-2 mt-2">
+            <div class="col-md-4">
+                <span class="text-muted">تولید برنامه:</span>
+                <span class="fw-bold">{{ analysis.production_plan|int }}</span>
+            </div>
+            <div class="col-md-4">
+                <span class="text-muted">تولید واقعی:</span>
+                <span class="fw-bold">{{ analysis.production_actual|int }}</span>
+            </div>
+            <div class="col-md-4">
+                <span class="text-muted">درصد تحقق:</span>
+                <span class="fw-bold">
+                    {% if analysis.production_plan > 0 %}
+                        {{ "%.1f"|format(analysis.production_actual / analysis.production_plan * 100) }}%
+                    {% else %}
+                        ۰%
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4 pt-3 border-top">
+        <div class="col-4 text-center">
+            <div class="text-muted small">سرپرست تولید</div>
+            <div class="mt-2">................</div>
+        </div>
+        <div class="col-4 text-center">
+            <div class="text-muted small">مدیر کارخانه</div>
+            <div class="mt-2">................</div>
+        </div>
+        <div class="col-4 text-center">
+            <div class="text-muted small">تاریخ</div>
+            <div class="mt-2">{{ jalali(record_date) }}</div>
+        </div>
+    </div>
+</div>
+
+<button class="print-btn no-print" onclick="window.print()">
+    <i class="fas fa-print me-2"></i> چاپ گزارش
+</button>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+$(function(){
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    const trendData = {{ trends|tojson|safe }};
+    const labels = trendData.map(item => item.date ? '{{ jalali(item.date) }}' : '');
+    const values = trendData.map(item => item.efficiency);
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'راندمان %',
+                data: values,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.3,
+                fill: true,
+                pointBackgroundColor: '#3b82f6',
+                pointRadius: 4,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, max: 100, ticks: { callback: function(v) { return v + '%'; } } }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

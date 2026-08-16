@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% block page_title %}گزارش نهایی عملکرد{% endblock %}
+
+{% block styles %}
+<style>
+    .report-container {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    }
+    .report-header {
+        text-align: center;
+        border-bottom: 3px double #0f2b5e;
+        padding-bottom: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    .report-header h2 {
+        color: #0f2b5e;
+        font-weight: 700;
+    }
+    .report-header .subtitle {
+        color: #64748b;
+    }
+    .report-section {
+        margin-bottom: 2rem;
+    }
+    .report-section h4 {
+        color: #0f2b5e;
+        border-right: 4px solid #3b82f6;
+        padding-right: 0.8rem;
+        margin-bottom: 1rem;
+    }
+    .report-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+    .report-table th {
+        background: #f1f5f9;
+        color: #1e293b;
+        padding: 0.6rem 0.8rem;
+        border: 1px solid #e2e8f0;
+        text-align: center;
+    }
+    .report-table td {
+        padding: 0.5rem 0.8rem;
+        border: 1px solid #e2e8f0;
+        text-align: center;
+    }
+    .report-table tr:nth-child(even) {
+        background: #fafbfc;
+    }
+    .badge-status {
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .badge-excellent { background: #dcfce7; color: #166534; }
+    .badge-good { background: #fef3c7; color: #92400e; }
+    .badge-poor { background: #fee2e2; color: #991b1b; }
+    .print-btn {
+        position: fixed;
+        bottom: 2rem;
+        left: 2rem;
+        z-index: 1000;
+        background: #0f2b5e;
+        color: #fff;
+        border: none;
+        padding: 0.8rem 1.8rem;
+        border-radius: 40px;
+        font-weight: 600;
+        box-shadow: 0 4px 16px rgba(15,43,94,0.3);
+        transition: all 0.3s;
+    }
+    .print-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(15,43,94,0.4);
+        color: #fff;
+    }
+    @media print {
+        .print-btn { display: none; }
+        .sidebar { display: none; }
+        .header { display: none; }
+        .footer { display: none; }
+        .main-content { margin: 0; padding: 1rem; }
+        .report-container { box-shadow: none; padding: 0; }
+        .no-print { display: none; }
+        .report-table th {
+            background: #e2e8f0 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .badge-status {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+    @media (max-width: 768px) {
+        .report-table { font-size: 0.7rem; }
+        .report-table th, .report-table td { padding: 0.3rem 0.4rem; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container" id="reportContent">
+    <!-- هدر گزارش -->
+    <div class="report-header">
+        <h2>📊 گزارش نهایی عملکرد</h2>
+        <div class="subtitle">
+            تاریخ: {{ jalali(now) }} &nbsp;|&nbsp; اروم تینار شیر
+        </div>
+    </div>
+
+    <!-- خلاصه کلی -->
+    <div class="report-section">
+        <h4>📈 خلاصه کلی</h4>
+        <div class="row g-3 mb-3">
+            <div class="col-md-3 col-6">
+                <div class="bg-light p-3 rounded-4 text-center">
+                    <div class="text-muted small">تعداد کل اپراتورها</div>
+                    <div class="fw-bold h4">{{ operators|length }}</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="bg-light p-3 rounded-4 text-center">
+                    <div class="text-muted small">تعداد مسئولین</div>
+                    <div class="fw-bold h4">{{ supervisors|length }}</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="bg-light p-3 rounded-4 text-center">
+                    <div class="text-muted small">میانگین امتیاز اپراتورها</div>
+                    <div class="fw-bold h4">{{ "%.1f"|format(avg_operator_score) }}</div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="bg-light p-3 rounded-4 text-center">
+                    <div class="text-muted small">میانگین امتیاز مسئولین</div>
+                    <div class="fw-bold h4">{{ "%.1f"|format(avg_supervisor_score) }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- جدول عملکرد اپراتورها -->
+    <div class="report-section">
+        <h4>👷 عملکرد اپراتورها</h4>
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>نام اپراتور</th>
+                    <th>کد</th>
+                    <th>مسئول</th>
+                    <th>تعداد بخش‌ها</th>
+                    <th>میانگین راندمان</th>
+                    <th>توقف (دقیقه)</th>
+                    <th>ضایعات (ریال)</th>
+                    <th>امتیاز</th>
+                    <th>وضعیت</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in person_performance %}
+                    {% if item.type == 'operator' %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ item.person.name }}</td>
+                        <td>{{ item.person.code or '-' }}</td>
+                        <td>{{ item.person.supervisor.name if item.person.supervisor else '-' }}</td>
+                        <td>{{ item.sections_count }}</td>
+                        <td>{{ "%.1f"|format(item.efficiency) }}%</td>
+                        <td>{{ item.stops|int }}</td>
+                        <td>{{ "%.0f"|format(item.waste) }}</td>
+                        <td><strong>{{ "%.1f"|format(item.score) }}</strong></td>
+                        <td>
+                            {% if item.score >= 80 %}
+                                <span class="badge-status badge-excellent">عالی</span>
+                            {% elif item.score >= 60 %}
+                                <span class="badge-status badge-good">متوسط</span>
+                            {% else %}
+                                <span class="badge-status badge-poor">نیاز به بهبود</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endif %}
+                {% else %}
+                    <tr><td colspan="10" class="text-muted">هیچ اپراتوری ثبت نشده است.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- جدول عملکرد مسئولین -->
+    <div class="report-section">
+        <h4>👔 عملکرد مسئولین</h4>
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>نام مسئول</th>
+                    <th>کد</th>
+                    <th>تعداد اپراتورها</th>
+                    <th>تعداد بخش‌ها</th>
+                    <th>میانگین راندمان</th>
+                    <th>توقف (دقیقه)</th>
+                    <th>ضایعات (ریال)</th>
+                    <th>امتیاز</th>
+                    <th>وضعیت</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in person_performance %}
+                    {% if item.type == 'supervisor' %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ item.person.name }}</td>
+                        <td>{{ item.person.code or '-' }}</td>
+                        <td>{{ item.person.operators|length }}</td>
+                        <td>{{ item.sections_count }}</td>
+                        <td>{{ "%.1f"|format(item.efficiency) }}%</td>
+                        <td>{{ item.stops|int }}</td>
+                        <td>{{ "%.0f"|format(item.waste) }}</td>
+                        <td><strong>{{ "%.1f"|format(item.score) }}</strong></td>
+                        <td>
+                            {% if item.score >= 80 %}
+                                <span class="badge-status badge-excellent">عالی</span>
+                            {% elif item.score >= 60 %}
+                                <span class="badge-status badge-good">متوسط</span>
+                            {% else %}
+                                <span class="badge-status badge-poor">نیاز به بهبود</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endif %}
+                {% else %}
+                    <tr><td colspan="10" class="text-muted">هیچ مسئولی ثبت نشده است.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- امضاها -->
+    <div class="row mt-4 pt-3 border-top">
+        <div class="col-4 text-center">
+            <div class="text-muted small">سرپرست تولید</div>
+            <div class="mt-2">................</div>
+        </div>
+        <div class="col-4 text-center">
+            <div class="text-muted small">مدیر کارخانه</div>
+            <div class="mt-2">................</div>
+        </div>
+        <div class="col-4 text-center">
+            <div class="text-muted small">تاریخ</div>
+            <div class="mt-2">{{ jalali(now) }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- دکمه چاپ -->
+<button class="print-btn no-print" onclick="window.print()">
+    <i class="fas fa-print me-2"></i> چاپ گزارش
+</button>
+{% endblock %}

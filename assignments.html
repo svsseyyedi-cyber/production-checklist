@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block page_title %}تخصیص بخش‌ها به افراد{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-header bg-transparent border-0">
+        <h5 class="mb-0"><i class="fas fa-tasks text-primary me-2"></i>انتساب بخش‌ها به اپراتورها و مسئولین</h5>
+        <p class="text-muted small">بخش‌های مرتبط با هر شخص را انتخاب کنید تا عملکرد بر اساس آن‌ها محاسبه شود.</p>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label">نوع شخص</label>
+                        <select name="person_type" class="form-select" id="personType">
+                            <option value="operator">اپراتور</option>
+                            <option value="supervisor">مسئول</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">شخص</label>
+                        <select name="person_id" class="form-select" id="personSelect">
+                            <optgroup label="اپراتورها">
+                                {% for op in operators %}
+                                <option value="{{ op.id }}" data-type="operator">{{ op.name }} ({{ op.code }})</option>
+                                {% endfor %}
+                            </optgroup>
+                            <optgroup label="مسئولین">
+                                {% for sup in supervisors %}
+                                <option value="{{ sup.id }}" data-type="supervisor">{{ sup.name }} ({{ sup.code }})</option>
+                                {% endfor %}
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">بخش‌های مرتبط</label>
+                    <div class="border rounded-4 p-3" style="max-height:300px; overflow-y:auto;">
+                        {% for section in sections %}
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="section_ids" value="{{ section.id }}" id="sec_{{ section.id }}">
+                            <label class="form-check-label" for="sec_{{ section.id }}">
+                                {{ section.name }}
+                                <span class="badge bg-light text-dark">{{ section.items|length }} آیتم</span>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary-custom">
+                    <i class="fas fa-save"></i> ذخیره انتسابات
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- نمایش انتسابات فعلی -->
+<div class="card shadow-sm border-0 rounded-4 mt-4">
+    <div class="card-header bg-transparent border-0">
+        <h5 class="mb-0"><i class="fas fa-list-check text-primary me-2"></i>وضعیت انتسابات فعلی</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>نوع</th>
+                        <th>نام</th>
+                        <th>بخش‌های اختصاص‌یافته</th>
+                        <th>تعداد</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for op in operators %}
+                    <tr>
+                        <td><span class="badge bg-primary">اپراتور</span></td>
+                        <td>{{ op.name }}</td>
+                        <td>
+                            {% for sec_id in assignments.get('operator_' + op.id|string, []) %}
+                                {% set section = sections|selectattr('id', 'equalto', sec_id)|first %}
+                                <span class="badge bg-light text-dark">{{ section.name }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>{{ assignments.get('operator_' + op.id|string, [])|length }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% for sup in supervisors %}
+                    <tr>
+                        <td><span class="badge bg-success">مسئول</span></td>
+                        <td>{{ sup.name }}</td>
+                        <td>
+                            {% for sec_id in assignments.get('supervisor_' + sup.id|string, []) %}
+                                {% set section = sections|selectattr('id', 'equalto', sec_id)|first %}
+                                <span class="badge bg-light text-dark">{{ section.name }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>{{ assignments.get('supervisor_' + sup.id|string, [])|length }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+$(function(){
+    $('#personType').on('change', function(){
+        const type = $(this).val();
+        $('#personSelect option').each(function(){
+            const optType = $(this).data('type');
+            if (optType === type || optType === undefined) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+        if ($('#personSelect option:selected').is(':hidden')) {
+            $('#personSelect option:visible').first().prop('selected', true);
+        }
+    }).trigger('change');
+});
+</script>
+{% endblock %}

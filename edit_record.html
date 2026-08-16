@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block page_title %}ویرایش رکورد{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-header bg-transparent border-0">
+        <h5 class="mb-0"><i class="fas fa-edit text-primary me-2"></i>ویرایش رکورد</h5>
+    </div>
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label">آیتم</label>
+                <input type="text" class="form-control" value="{{ record.item.title }}" disabled>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">مقدار</label>
+                <input type="text" name="value" class="form-control" value="{{ record.value }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary-custom">
+                <i class="fas fa-save"></i> ذخیره تغییرات
+            </button>
+            <a href="{{ url_for('records_list') }}" class="btn btn-secondary">بازگشت</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
