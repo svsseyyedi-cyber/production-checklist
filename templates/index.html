@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block page_title %}داشبورد مدیریت تولید{% endblock %}
+
+{% block content %}
+
+<!-- ردیف اول: ۴ کارت آماری -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card bg-gradient-blue">
+            <div class="icon"><i class="fas fa-chart-line"></i></div>
+            <div class="number">{{ summary.get('راندمان', '۰') }}%</div>
+            <div class="label">راندمان خط تولید</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card bg-gradient-orange">
+            <div class="icon"><i class="fas fa-stopwatch"></i></div>
+            <div class="number">{{ summary.get('مجموع توقف روزانه', '۰') }} <small style="font-size:1.2rem;">دقیقه</small></div>
+            <div class="label">توقف‌های امروز</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card bg-gradient-green">
+            <div class="icon"><i class="fas fa-boxes"></i></div>
+            <div class="number">{{ summary.get('تولید واقعی', '۰') }}</div>
+            <div class="label">تولید امروز (بطری)</div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="stat-card bg-gradient-purple">
+            <div class="icon"><i class="fas fa-microchip"></i></div>
+            <div class="number">{{ summary.get('OEE', '۰') }}%</div>
+            <div class="label">اثربخشی کلی تجهیزات</div>
+        </div>
+    </div>
+</div>
+
+<!-- ردیف دوم: نمودارها -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-chart-area text-primary me-2"></i> روند OEE در ۷ روز اخیر</div>
+            <div class="card-body">
+                <canvas id="oeeChart" style="height:220px; width:100%;"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-user-tie text-success me-2"></i> عملکرد اپراتورها</div>
+            <div class="card-body">
+                <canvas id="operatorChart" style="height:220px; width:100%;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ردیف سوم: گلوگاه، توقف‌ها و شیفت‌ها -->
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-exclamation-triangle text-danger me-2"></i> گلوگاه فعلی</div>
+            <div class="card-body text-center">
+                <span class="badge bg-danger badge-custom" style="font-size:1.4rem; padding:0.6rem 1.8rem;">
+                    {{ summary.get('گلوگاه', 'نامشخص') }}
+                </span>
+                <p class="text-muted mt-3">کندترین دستگاه خط</p>
+                <hr>
+                <h6>اقدامات پیشنهادی:</h6>
+                <ul class="list-unstyled text-start">
+                    <li><i class="fas fa-wrench text-warning"></i> بررسی تنظیمات دستگاه</li>
+                    <li><i class="fas fa-users text-info"></i> آموزش اپراتور مربوطه</li>
+                    <li><i class="fas fa-clock text-success"></i> برنامه تعمیرات پیشگیرانه</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-history text-info me-2"></i> آخرین توقف‌ها</div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    {% for stop in recent_stops %}
+                    <li class="stop-item d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-stop-circle text-danger"></i> {{ stop.machine_name }}</span>
+                        <span class="badge bg-warning">{{ stop.stop_duration }} دقیقه</span>
+                    </li>
+                    {% else %}
+                    <li class="text-muted">هیچ توقفی ثبت نشده</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-calendar-alt text-primary me-2"></i> عملکرد شیفت‌ها (امروز)</div>
+            <div class="card-body">
+                <table class="table table-sm table-borderless shift-table">
+                    <thead>
+                        <tr><th>شیفت</th><th>راندمان</th><th>امتیاز</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for shift in shift_performance %}
+                        <tr>
+                            <td>{{ shift.name }}</td>
+                            <td><span class="badge bg-{{ 'success' if shift.efficiency > 85 else 'warning' if shift.efficiency > 70 else 'danger' }}">{{ shift.efficiency }}%</span></td>
+                            <td><i class="fas fa-star text-warning"></i> {{ shift.score }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="3" class="text-muted">داده‌ای موجود نیست</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(function(){
+    // نمودار OEE
+    $.get('/api/oee_data', function(data){
+        new Chart(document.getElementById('oeeChart'), {
+            type: 'line',
+            data: {
+                labels: data.dates,
+                datasets: [{
+                    label: 'OEE %',
+                    data: data.oee,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#667eea',
+                    pointBorderColor: '#fff',
+                    pointRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, max: 100 } }
+            }
+        });
+    });
+
+    // نمودار اپراتورها
+    $.get('/api/operator_performance', function(data){
+        new Chart(document.getElementById('operatorChart'), {
+            type: 'bar',
+            data: {
+                labels: data.names,
+                datasets: [{
+                    label: 'امتیاز',
+                    data: data.scores,
+                    backgroundColor: ['#4facfe', '#43e97b', '#fa709a', '#f6d365', '#a18cd1'],
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

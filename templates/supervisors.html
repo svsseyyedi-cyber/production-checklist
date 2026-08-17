@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block page_title %}مدیریت مسئولین{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0"><i class="fas fa-user-tie text-primary me-2"></i>افزودن مسئول جدید</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="action" value="add">
+                    <div class="mb-3">
+                        <label class="form-label">نام کامل</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">کد پرسنلی</label>
+                        <input type="text" name="code" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ایمیل</label>
+                        <input type="email" name="email" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">شماره تماس</label>
+                        <input type="text" name="phone" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">تاریخ استخدام</label>
+                        <input type="date" name="hire_date" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary-custom w-100">
+                        <i class="fas fa-save"></i> ثبت مسئول
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-users text-primary me-2"></i>لیست مسئولین</h5>
+                <span class="badge bg-light text-dark">{{ supervisors|length }} نفر</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>نام</th>
+                                <th>کد</th>
+                                <th>ایمیل</th>
+                                <th>عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sup in supervisors %}
+                            <tr>
+                                <td class="fw-semibold">{{ sup.name }}</td>
+                                <td>{{ sup.code }}</td>
+                                <td>{{ sup.email or '—' }}</td>
+                                <td>
+                                    <form method="POST" onsubmit="return confirm('آیا از حذف مسئول {{ sup.name }} مطمئنید؟')" class="d-inline">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="supervisor_id" value="{{ sup.id }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    <i class="fas fa-user-slash fa-2x d-block mb-2"></i>
+                                    هیچ مسئولی ثبت نشده است.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,545 @@
+{% extends "base.html" %}
+{% block page_title %}ثبت داده‌های جدید{% endblock %}
+
+{% block styles %}
+<style>
+    .form-container {
+        background: #fff;
+        border-radius: 24px;
+        padding: 2rem;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+    }
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid #f1f5f9;
+    }
+    .form-header h4 {
+        font-weight: 700;
+        color: #0f2b5e;
+        margin: 0;
+    }
+    .form-header .badge-progress {
+        background: #eef2f6;
+        padding: 0.4rem 1rem;
+        border-radius: 30px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        color: #475569;
+    }
+    .form-header .badge-progress i {
+        color: #3b82f6;
+        margin-left: 0.3rem;
+    }
+    .basic-info {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid #eef2f6;
+    }
+    .basic-info .form-label {
+        font-weight: 600;
+        color: #1e293b;
+    }
+    .basic-info .form-control,
+    .basic-info .form-select {
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        padding: 0.6rem 1rem;
+        transition: all 0.2s;
+    }
+    .basic-info .form-control:focus,
+    .basic-info .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+    .toolbar {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 16px;
+        border: 1px solid #eef2f6;
+    }
+    .toolbar .search-box {
+        flex: 1;
+        position: relative;
+        min-width: 200px;
+    }
+    .toolbar .search-box input {
+        padding-right: 2.8rem;
+        border-radius: 30px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        height: 44px;
+        transition: all 0.2s;
+        width: 100%;
+    }
+    .toolbar .search-box input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+    .toolbar .search-box i {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+    }
+    .toolbar .section-select {
+        min-width: 200px;
+    }
+    .toolbar .section-select select {
+        border-radius: 30px;
+        border: 1px solid #e2e8f0;
+        height: 44px;
+        padding: 0 1rem;
+        background: #fff;
+        cursor: pointer;
+    }
+    .toolbar .section-select select:focus {
+        border-color: #3b82f6;
+        outline: none;
+    }
+    .section-card {
+        border: 1px solid #eef2f6;
+        border-radius: 16px;
+        margin-bottom: 1rem;
+        overflow: hidden;
+        transition: all 0.2s;
+        background: #fff;
+    }
+    .section-card .section-header {
+        padding: 0.8rem 1.2rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        background: #fafbfc;
+        transition: background 0.2s;
+        border-bottom: 1px solid transparent;
+        user-select: none;
+    }
+    .section-card .section-header:hover {
+        background: #f1f5f9;
+    }
+    .section-card .section-header .icon {
+        font-size: 1.2rem;
+        width: 2rem;
+        text-align: center;
+        color: #3b82f6;
+    }
+    .section-card .section-header .title {
+        font-weight: 600;
+        color: #1e293b;
+        flex: 1;
+    }
+    .section-card .section-header .count-badge {
+        background: #e2e8f0;
+        color: #475569;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.7rem;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+    .section-card .section-header .toggle-icon {
+        color: #94a3b8;
+        transition: transform 0.3s;
+    }
+    .section-card .section-header .toggle-icon.open {
+        transform: rotate(180deg);
+    }
+    .section-card .section-body {
+        padding: 1rem 1.2rem;
+        display: none;
+    }
+    .section-card .section-body.open {
+        display: block;
+    }
+    .items-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem 1.5rem;
+    }
+    @media (max-width: 768px) {
+        .items-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    .item-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0;
+        border-bottom: 1px dashed #f1f5f9;
+    }
+    .item-row:last-child {
+        border-bottom: none;
+    }
+    .item-row .item-label {
+        font-size: 0.85rem;
+        color: #334155;
+        flex: 1;
+        min-width: 120px;
+    }
+    .item-row .item-label .kpi-badge {
+        background: #fef3c7;
+        color: #b45309;
+        font-size: 0.55rem;
+        padding: 0.1rem 0.4rem;
+        border-radius: 12px;
+        font-weight: 700;
+        margin-right: 0.3rem;
+    }
+    .item-row .item-control {
+        flex: 2;
+        min-width: 150px;
+    }
+    .item-row .item-control .form-control,
+    .item-row .item-control .form-select {
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        height: 38px;
+    }
+    .item-row .item-control .form-control:focus,
+    .item-row .item-control .form-select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+    .item-row .item-control .form-switch {
+        padding-right: 2.2rem;
+    }
+    .item-row .item-control .form-switch .form-check-input {
+        width: 2.2rem;
+        height: 1.1rem;
+        cursor: pointer;
+    }
+    .item-row .item-control .form-switch .form-check-input:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+    .item-row .item-control .unit-text {
+        font-size: 0.7rem;
+        color: #94a3b8;
+        margin-right: 0.3rem;
+    }
+    .progress-container {
+        margin-bottom: 1.5rem;
+    }
+    .progress-container .progress {
+        height: 6px;
+        border-radius: 10px;
+        background: #eef2f6;
+    }
+    .progress-container .progress-bar {
+        background: linear-gradient(90deg, #3b82f6, #0f2b5e);
+        border-radius: 10px;
+        transition: width 0.5s ease;
+    }
+    .progress-container .progress-text {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-top: 0.3rem;
+        text-align: left;
+    }
+    .submit-area {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #f1f5f9;
+    }
+    .submit-area .info {
+        font-size: 0.9rem;
+        color: #64748b;
+    }
+    .submit-area .info strong {
+        color: #0f2b5e;
+    }
+    .btn-submit {
+        background: linear-gradient(135deg, #0f2b5e, #3b82f6);
+        border: none;
+        color: #fff;
+        padding: 0.7rem 2.5rem;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s;
+        box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+    }
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+        color: #fff;
+    }
+    @media (max-width: 576px) {
+        .form-container { padding: 1rem; }
+        .basic-info { padding: 1rem; }
+        .toolbar { flex-direction: column; }
+        .toolbar .search-box,
+        .toolbar .section-select { min-width: 100%; }
+        .item-row { flex-wrap: wrap; }
+        .item-row .item-label { flex: 0 0 100%; }
+        .item-row .item-control { flex: 0 0 100%; }
+        .submit-area { flex-direction: column; align-items: stretch; }
+        .btn-submit { justify-content: center; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="form-container">
+    <!-- هدر فرم -->
+    <div class="form-header">
+        <div>
+            <h4><i class="fas fa-pen-to-square text-primary me-2"></i>ثبت داده‌های خط تولید</h4>
+            <span class="text-muted small">تمام آیتم‌های چک‌لیست را تکمیل کنید</span>
+        </div>
+        <div class="badge-progress">
+            <i class="fas fa-check-circle"></i>
+            <span id="filledCount">0</span> از <span id="totalItems">{{ total_items }}</span> آیتم تکمیل شده
+        </div>
+    </div>
+
+    <form method="POST" id="recordForm" novalidate>
+        <!-- اطلاعات پایه -->
+        <div class="basic-info">
+            <div class="row g-3">
+                <!-- در بخش اطلاعات پایه، تاریخ را به صورت شمسی نمایش دهید -->
+<div class="col-md-4">
+    <label class="form-label"><i class="fas fa-calendar-alt text-primary"></i> تاریخ (شمسی)</label>
+    <input type="text" name="shift_date_persian" class="form-control" id="persianDate" placeholder="مثال: ۱۴۰۴/۰۵/۲۵">
+    <input type="hidden" name="shift_date" id="gregorianDate">
+    <small class="text-muted">تاریخ را به شمسی وارد کنید</small>
+</div>
+                <div class="col-md-4">
+                    <label class="form-label"><i class="fas fa-clock text-primary"></i> شیفت</label>
+                    <select name="shift_name" class="form-select">
+                        <option value="صبح">صبح</option>
+                        <option value="عصر">عصر</option>
+                        <option value="شب">شب</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label"><i class="fas fa-user text-primary"></i> اپراتور</label>
+                    <select name="operator_id" class="form-select">
+                        <option value="">انتخاب اپراتور</option>
+                        {% for op in operators %}
+                        <option value="{{ op.id }}">{{ op.name }} ({{ op.code }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- نوار ابزار -->
+        <div class="toolbar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="جستجو در آیتم‌ها..." class="form-control">
+            </div>
+            <div class="section-select">
+                <select id="sectionFilter" class="form-select">
+                    <option value="all">همه بخش‌ها</option>
+                    {% for sec in sections %}
+                    <option value="sec-{{ sec.id }}">{{ sec.name }} ({{ sec.items|length }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- پیشرفت تکمیل -->
+        <div class="progress-container">
+            <div class="progress">
+                <div class="progress-bar" id="progressBar" style="width:0%"></div>
+            </div>
+            <div class="progress-text" id="progressText">۰٪ تکمیل شده</div>
+        </div>
+
+        <!-- بخش‌های چک‌لیست (آکاردئون) -->
+        <div id="sectionsContainer">
+            {% for section in sections %}
+            <div class="section-card" id="sec-{{ section.id }}" data-section="{{ section.id }}">
+                <div class="section-header" data-bs-toggle="collapse" data-bs-target="#collapse{{ section.id }}" aria-expanded="false" aria-controls="collapse{{ section.id }}">
+                    <span class="icon"><i class="fas {{ section.icon or 'fa-cog' }}"></i></span>
+                    <span class="title">{{ section.name }}</span>
+                    <span class="count-badge">{{ section.items|length }} آیتم</span>
+                    <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+                </div>
+                <div class="section-body collapse" id="collapse{{ section.id }}">
+                    <div class="items-grid">
+                        {% for item in section.items %}
+                        <div class="item-row" data-search="{{ item.title }}">
+                            <div class="item-label">
+                                {{ item.title }}
+                                {% if item.is_kpi %}
+                                <span class="kpi-badge">KPI</span>
+                                {% endif %}
+                            </div>
+                            <div class="item-control">
+                                {% if item.field_type == 'checkbox' %}
+                                    <div class="form-check form-switch">
+                                        <input type="checkbox" name="item_{{ item.id }}" class="form-check-input" id="item_{{ item.id }}" {% if item.default_value == '1' %}checked{% endif %}>
+                                        <label class="form-check-label" for="item_{{ item.id }}">فعال</label>
+                                    </div>
+                                {% elif item.field_type == 'select' %}
+                                    <select name="item_{{ item.id }}" class="form-select">
+                                        {% for opt in item.options.split(',') if item.options %}
+                                        <option value="{{ opt.strip() }}">{{ opt.strip() }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% elif item.field_type == 'number' %}
+                                    <input type="number" step="any" name="item_{{ item.id }}" class="form-control" placeholder="مقدار" value="{{ item.default_value }}">
+                                    {% if item.unit %}
+                                    <span class="unit-text">{{ item.unit }}</span>
+                                    {% endif %}
+                                {% else %}
+                                    <input type="text" name="item_{{ item.id }}" class="form-control" placeholder="مقدار" value="{{ item.default_value }}">
+                                    {% if item.unit %}
+                                    <span class="unit-text">{{ item.unit }}</span>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- دکمه ثبت -->
+        <div class="submit-area">
+            <div class="info">
+                <i class="fas fa-info-circle text-primary"></i>
+                <span id="filledInfo">0</span> از <span id="totalInfo">{{ total_items }}</span> آیتم تکمیل شده
+            </div>
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-save"></i> ذخیره رکورد
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(function(){
+    function countFilled() {
+        let total = 0;
+        let filled = 0;
+        $('.item-row').each(function() {
+            total++;
+            const control = $(this).find('.item-control');
+            const input = control.find('input, select');
+            if (input.length) {
+                const val = input.val();
+                if (val && val.trim() !== '') {
+                    filled++;
+                }
+            } else {
+                const chk = control.find('input[type="checkbox"]');
+                if (chk.length) {
+                    filled++;
+                }
+            }
+        });
+        const percent = total > 0 ? Math.round((filled / total) * 100) : 0;
+        $('#progressBar').css('width', percent + '%');
+        $('#progressText').text(percent + '% تکمیل شده');
+        $('#filledCount').text(filled);
+        $('#filledInfo').text(filled);
+        return filled;
+    }
+
+    $('#searchInput').on('keyup', function() {
+        const query = $(this).val().toLowerCase().trim();
+        if (query === '') {
+            $('.item-row').show();
+            $('.section-card').show();
+            $('.section-body').removeClass('open');
+            $('.section-header .toggle-icon .fa-chevron-down').removeClass('open');
+            // باز کردن اولین بخش به صورت پیش‌فرض
+            $('.section-card:first .section-body').addClass('open');
+            $('.section-card:first .toggle-icon .fa-chevron-down').addClass('open');
+            return;
+        }
+        $('.item-row').each(function() {
+            const text = $(this).data('search').toLowerCase();
+            if (text.includes(query)) {
+                $(this).show();
+                const parentCard = $(this).closest('.section-card');
+                const body = parentCard.find('.section-body');
+                body.addClass('open');
+                parentCard.find('.toggle-icon .fa-chevron-down').addClass('open');
+                parentCard.show();
+            } else {
+                $(this).hide();
+            }
+        });
+        $('.section-card').each(function() {
+            if ($(this).find('.item-row:visible').length === 0) {
+                $(this).hide();
+            } else {
+                $(this).show();
+            }
+        });
+    });
+
+    $('#sectionFilter').on('change', function() {
+        const val = $(this).val();
+        if (val === 'all') {
+            $('.section-card').show();
+        } else {
+            $('.section-card').hide();
+            $('#' + val).show();
+        }
+        $('.section-body').removeClass('open');
+        $('.section-header .toggle-icon .fa-chevron-down').removeClass('open');
+        if (val !== 'all') {
+            const target = $('#' + val);
+            target.find('.section-body').addClass('open');
+            target.find('.toggle-icon .fa-chevron-down').addClass('open');
+        } else {
+            $('.section-card:first .section-body').addClass('open');
+            $('.section-card:first .toggle-icon .fa-chevron-down').addClass('open');
+        }
+    });
+
+    $('.section-header').on('click', function() {
+        const body = $(this).next('.section-body');
+        body.toggleClass('open');
+        $(this).find('.toggle-icon .fa-chevron-down').toggleClass('open');
+    });
+
+    $('.item-row input, .item-row select').on('change input', function() {
+        countFilled();
+    });
+
+    countFilled();
+
+    // باز کردن اولین بخش به صورت پیش‌فرض
+    $('.section-card:first .section-body').addClass('open');
+    $('.section-card:first .toggle-icon .fa-chevron-down').addClass('open');
+});
+</script>
+{% endblock %}

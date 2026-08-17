@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block page_title %}ورود به سیستم{% endblock %}
+
+{% block styles %}
+<style>
+    .login-container {
+        max-width: 400px;
+        margin: 3rem auto;
+        padding: 2rem;
+        background: #fff;
+        border-radius: 24px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
+    .login-container .logo {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    .login-container .logo i {
+        font-size: 3rem;
+        background: linear-gradient(135deg, #0f2b5e, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .login-container .logo h4 {
+        color: #0f2b5e;
+        font-weight: 700;
+        margin-top: 0.5rem;
+    }
+    .login-container .form-control {
+        border-radius: 12px;
+        padding: 0.7rem 1rem;
+        border: 1px solid #e2e8f0;
+    }
+    .login-container .form-control:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+    .login-container .btn-login {
+        background: linear-gradient(135deg, #0f2b5e, #3b82f6);
+        border: none;
+        color: #fff;
+        padding: 0.7rem;
+        border-radius: 30px;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.3s;
+    }
+    .login-container .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(59,130,246,0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="logo">
+        <i class="fas fa-industry"></i>
+        <h4>اروم تینار شیر</h4>
+        <p class="text-muted small">سیستم مدیریت تولید</p>
+    </div>
+    
+    <form method="POST">
+        <div class="mb-3">
+            <label class="form-label">نام کاربری</label>
+            <input type="text" name="username" class="form-control" placeholder="نام کاربری خود را وارد کنید" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">رمز عبور</label>
+            <input type="password" name="password" class="form-control" placeholder="رمز عبور خود را وارد کنید" required>
+        </div>
+        <button type="submit" class="btn-login">
+            <i class="fas fa-sign-in-alt me-2"></i> ورود
+        </button>
+    </form>
+    
+    <div class="mt-3 text-center text-muted small">
+        کاربر پیش‌فرض: admin / رمز: 123456
+    </div>
+</div>
+{% endblock %}

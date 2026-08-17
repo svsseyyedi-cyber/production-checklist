@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h2><i class="fas fa-file-alt"></i> گزارش طلایی روزانه</h2>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">راندمان</h5>
+                <p class="card-text display-4">{{ "%.2f"|format(efficiency) }}%</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <h5 class="card-title">مجموع توقف (دقیقه)</h5>
+                <p class="card-text display-4">{{ stops }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card text-white bg-danger mb-3">
+            <div class="card-body">
+                <h5 class="card-title">ضایعات (ریال)</h5>
+                <p class="card-text display-4">{{ "%.0f"|format(waste) }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-body">
+                <h5 class="card-title">گلوگاه خط</h5>
+                <p class="card-text display-6">{{ bottleneck }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+<p class="text-muted">تاریخ گزارش: {{ record_date }}</p>
+{% endblock %}

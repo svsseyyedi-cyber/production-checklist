@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+{% block page_title %}مدیریت رکوردها{% endblock %}
+
+{% block styles %}
+<style>
+    .filter-section {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #eef2f6;
+    }
+    .table-modern {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        background: #fff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+    .table-modern thead th {
+        background: #f8fafc;
+        color: #475569;
+        font-weight: 600;
+        font-size: 0.85rem;
+        padding: 0.9rem 1rem;
+        border-bottom: 2px solid #eef2f6;
+        white-space: nowrap;
+    }
+    .table-modern tbody td {
+        padding: 0.8rem 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+        font-size: 0.9rem;
+    }
+    .table-modern tbody tr:last-child td {
+        border-bottom: none;
+    }
+    .table-modern tbody tr:hover {
+        background: #fafbfc;
+    }
+    .badge-soft-primary {
+        background: #eff6ff;
+        color: #1e4f8a;
+        padding: 0.3rem 0.8rem;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+    .badge-soft-success {
+        background: #ecfdf5;
+        color: #065f46;
+        padding: 0.3rem 0.8rem;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+    .badge-soft-warning {
+        background: #fef3c7;
+        color: #b45309;
+        padding: 0.3rem 0.8rem;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+    .badge-soft-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 0.3rem 0.8rem;
+        border-radius: 30px;
+        font-weight: 500;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #94a3b8;
+    }
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.4;
+    }
+    .search-box {
+        position: relative;
+    }
+    .search-box input {
+        padding-right: 2.5rem;
+        border-radius: 30px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        transition: all 0.2s;
+    }
+    .search-box input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+    }
+    .search-box i {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+    }
+    .action-btns {
+        display: flex;
+        gap: 0.3rem;
+        flex-wrap: wrap;
+    }
+    .action-btns .btn-sm {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    @media (max-width: 768px) {
+        .table-modern {
+            font-size: 0.8rem;
+        }
+        .table-modern thead th,
+        .table-modern tbody td {
+            padding: 0.5rem 0.6rem;
+        }
+        .filter-section .row > div {
+            margin-bottom: 0.5rem;
+        }
+        .action-btns {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- بخش فیلتر و جستجو -->
+<div class="filter-section">
+    <form method="GET" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label fw-semibold"><i class="fas fa-calendar-alt text-primary"></i> تاریخ</label>
+            <input type="date" name="date" class="form-control" value="{{ request.args.get('date', '') }}">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label fw-semibold"><i class="fas fa-clock text-primary"></i> شیفت</label>
+            <select name="shift" class="form-select">
+                <option value="">همه</option>
+                <option value="صبح" {% if request.args.get('shift') == 'صبح' %}selected{% endif %}>صبح</option>
+                <option value="عصر" {% if request.args.get('shift') == 'عصر' %}selected{% endif %}>عصر</option>
+                <option value="شب" {% if request.args.get('shift') == 'شب' %}selected{% endif %}>شب</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label fw-semibold"><i class="fas fa-user text-primary"></i> اپراتور</label>
+            <select name="operator_id" class="form-select">
+                <option value="">همه</option>
+                {% for op in operators %}
+                <option value="{{ op.id }}" {% if request.args.get('operator_id')|int == op.id %}selected{% endif %}>
+                    {{ op.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label fw-semibold"><i class="fas fa-search text-primary"></i> جستجو</label>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" name="q" class="form-control" placeholder="جستجو در آیتم‌ها..." value="{{ request.args.get('q', '') }}">
+            </div>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary-custom w-100">
+                <i class="fas fa-filter"></i> فیلتر
+            </button>
+            <a href="{{ url_for('records_list') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-times"></i>
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- جدول رکوردها -->
+<div class="card shadow-sm border-0 rounded-4">
+    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center py-3">
+        <div>
+            <i class="fas fa-list-ul text-primary me-2"></i>
+            <span class="fw-bold">لیست رکوردها</span>
+            <span class="badge bg-light text-dark ms-2">{{ records|length }} مورد</span>
+        </div>
+        <div>
+            <button class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+                <i class="fas fa-print"></i>
+            </button>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table-modern">
+                <thead>
+                    <tr>
+                        <th>تاریخ (شمسی)</th>
+                        <th>شیفت</th>
+                        <th>اپراتور</th>
+                        <th>آیتم</th>
+                        <th>مقدار</th>
+                        <th>واحد</th>
+                        <th>نوع</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rec in records %}
+                    <tr>
+                        <td>
+                            <span class="badge-soft-primary">{{ jalali(rec.shift_date) }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if rec.shift_name == 'صبح' else 'warning' if rec.shift_name == 'عصر' else 'secondary' }}">
+                                {{ rec.shift_name }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if rec.operator %}
+                                <span class="fw-semibold">{{ rec.operator.name }}</span>
+                                <small class="text-muted d-block">{{ rec.operator.code }}</small>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="fw-medium">{{ rec.item.title }}</span>
+                            {% if rec.item.is_kpi %}
+                                <span class="badge bg-warning bg-opacity-10 text-warning ms-1">KPI</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if rec.item.field_type == 'checkbox' %}
+                                <span class="badge bg-{{ 'success' if rec.value == '1' else 'secondary' }}">
+                                    {{ 'فعال' if rec.value == '1' else 'غیرفعال' }}
+                                </span>
+                            {% else %}
+                                <span class="fw-bold">{{ rec.value }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="text-muted">{{ rec.item.unit or '—' }}</span>
+                        </td>
+                        <td>
+                            {% if rec.item.field_type == 'number' %}
+                                <span class="badge-soft-primary">عددی</span>
+                            {% elif rec.item.field_type == 'checkbox' %}
+                                <span class="badge-soft-success">چک‌باکس</span>
+                            {% elif rec.item.field_type == 'select' %}
+                                <span class="badge-soft-warning">انتخابی</span>
+                            {% else %}
+                                <span class="badge-soft-secondary">متن</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="action-btns">
+                                <a href="{{ url_for('edit_record', id=rec.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('delete_record', id=rec.id) }}" 
+                                      onsubmit="return confirm('آیا از حذف این رکورد مطمئنید؟')" class="d-inline">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <h5 class="mt-3">هیچ رکوردی یافت نشد</h5>
+                                <p class="text-muted">برای ثبت داده جدید، به صفحه <a href="{{ url_for('add_record') }}">ثبت داده</a> بروید.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- نمایش تعداد کل رکوردها و اطلاعات آماری -->
+<div class="row mt-3 g-3">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="bg-primary bg-opacity-10 p-3 rounded-4">
+                    <i class="fas fa-database text-primary fa-2x"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">تعداد کل رکوردها</div>
+                    <div class="fw-bold h4 mb-0">{{ records|length }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="bg-success bg-opacity-10 p-3 rounded-4">
+                    <i class="fas fa-calendar-check text-success fa-2x"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">آخرین تاریخ ثبت</div>
+                    <div class="fw-bold h5 mb-0">
+                        {% if records %}
+                            {{ jalali(records[0].shift_date) }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="bg-warning bg-opacity-10 p-3 rounded-4">
+                    <i class="fas fa-chart-simple text-warning fa-2x"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">تعداد آیتم‌های KPI</div>
+                    <div class="fw-bold h4 mb-0">
+                        {{ records|selectattr('item.is_kpi', 'equalto', True)|list|length }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

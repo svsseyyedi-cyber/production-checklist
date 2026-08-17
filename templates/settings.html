@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block page_title %}تنظیمات سیستم{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-plus-circle"></i> افزودن بخش جدید</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="action" value="add_section">
+                    <div class="mb-3">
+                        <input type="text" name="name" class="form-control" placeholder="نام بخش" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" name="description" class="form-control" placeholder="توضیحات">
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" name="icon" class="form-control" placeholder="آیکون (مثل fa-flask)">
+                    </div>
+                    <button type="submit" class="btn btn-primary">افزودن بخش</button>
+                </form>
+            </div>
+        </div>
+        <div class="card card-success">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-plus-circle"></i> افزودن آیتم به بخش</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <input type="hidden" name="action" value="add_item">
+                    <div class="mb-3">
+                        <select name="section_id" class="form-select" required>
+                            <option value="">انتخاب بخش</option>
+                            {% for sec in sections %}
+                            <option value="{{ sec.id }}">{{ sec.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" name="title" class="form-control" placeholder="عنوان آیتم" required>
+                    </div>
+                    <div class="mb-3">
+                        <select name="field_type" class="form-select">
+                            <option value="text">متن</option>
+                            <option value="number">عدد</option>
+                            <option value="checkbox">چک‌باکس</option>
+                            <option value="select">انتخاب</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" name="unit" class="form-control" placeholder="واحد (مثلاً دقیقه، درصد)">
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" name="default_value" class="form-control" placeholder="مقدار پیش‌فرض">
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" name="options" class="form-control" placeholder="گزینه‌ها (برای select، با کاما جدا)">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" name="is_kpi" class="form-check-input" value="1">
+                        <label class="form-check-label">آیتم کلیدی (KPI)</label>
+                    </div>
+                    <button type="submit" class="btn btn-success">افزودن آیتم</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card card-danger">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-trash-alt"></i> حذف آیتم</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" onsubmit="return confirm('آیا مطمئنید؟')">
+                    <input type="hidden" name="action" value="delete_item">
+                    <div class="mb-3">
+                        <select name="item_id" class="form-select">
+                            {% for item in items %}
+                            <option value="{{ item.id }}">{{ item.section.name }} - {{ item.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-danger">حذف آیتم</button>
+                </form>
+            </div>
+        </div>
+        <div class="card card-danger">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-trash-alt"></i> حذف بخش (همراه با آیتم‌ها)</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" onsubmit="return confirm('با حذف بخش، تمام آیتم‌های آن نیز حذف می‌شوند. ادامه؟')">
+                    <input type="hidden" name="action" value="delete_section">
+                    <div class="mb-3">
+                        <select name="section_id" class="form-select">
+                            {% for sec in sections %}
+                            <option value="{{ sec.id }}">{{ sec.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-danger">حذف بخش</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
