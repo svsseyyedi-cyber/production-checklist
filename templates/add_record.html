@@ -3,12 +3,37 @@
 
 {% block styles %}
 <style>
-    .form-container {
-        background: #fff;
-        border-radius: 24px;
-        padding: 2rem;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+    /* ===== فونت و رنگ‌بندی ===== */
+    :root {
+        --primary-dark: #0f2b5e;
+        --primary-blue: #3b82f6;
+        --primary-light: #e8f0fe;
+        --gray-light: #f8fafc;
+        --gray-border: #eef2f6;
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
+        --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.06);
+        --shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.10);
+        --radius-xl: 20px;
+        --radius-lg: 16px;
+        --radius-md: 12px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
+    /* ===== کانتینر اصلی ===== */
+    .form-wrapper {
+        background: #ffffff;
+        border-radius: var(--radius-xl);
+        padding: 2rem 2.5rem;
+        box-shadow: var(--shadow-soft);
+        border: 1px solid var(--gray-border);
+        transition: var(--transition);
+    }
+    .form-wrapper:hover {
+        box-shadow: var(--shadow-hover);
+    }
+
+    /* ===== هدر فرم ===== */
     .form-header {
         display: flex;
         justify-content: space-between;
@@ -17,243 +42,336 @@
         gap: 1rem;
         margin-bottom: 2rem;
         padding-bottom: 1.5rem;
-        border-bottom: 2px solid #f1f5f9;
+        border-bottom: 2px solid var(--gray-border);
     }
-    .form-header h4 {
+    .form-header .title-section h4 {
         font-weight: 700;
-        color: #0f2b5e;
+        color: var(--primary-dark);
         margin: 0;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
     }
-    .form-header .badge-progress {
-        background: #eef2f6;
-        padding: 0.4rem 1rem;
-        border-radius: 30px;
-        font-weight: 500;
+    .form-header .title-section h4 i {
+        color: var(--primary-blue);
+        font-size: 1.6rem;
+    }
+    .form-header .title-section .subtitle {
+        color: var(--text-muted);
         font-size: 0.9rem;
-        color: #475569;
+        margin-top: 0.2rem;
     }
-    .form-header .badge-progress i {
-        color: #3b82f6;
-        margin-left: 0.3rem;
+    .form-header .progress-badge {
+        background: var(--primary-light);
+        color: var(--primary-dark);
+        padding: 0.5rem 1.2rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        border: 1px solid rgba(59, 130, 246, 0.15);
     }
+    .form-header .progress-badge i {
+        color: var(--primary-blue);
+    }
+
+    /* ===== اطلاعات پایه ===== */
     .basic-info {
-        background: #f8fafc;
-        border-radius: 16px;
-        padding: 1.5rem;
+        background: var(--gray-light);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem 2rem;
         margin-bottom: 2rem;
-        border: 1px solid #eef2f6;
+        border: 1px solid var(--gray-border);
     }
     .basic-info .form-label {
         font-weight: 600;
-        color: #1e293b;
+        color: var(--text-dark);
+        font-size: 0.9rem;
+        margin-bottom: 0.4rem;
     }
     .basic-info .form-control,
     .basic-info .form-select {
-        border-radius: 12px;
+        border-radius: var(--radius-md);
         border: 1px solid #e2e8f0;
-        padding: 0.6rem 1rem;
-        transition: all 0.2s;
+        padding: 0.65rem 1rem;
+        transition: var(--transition);
+        background: #fff;
+        font-size: 0.95rem;
     }
     .basic-info .form-control:focus,
     .basic-info .form-select:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+        outline: none;
     }
-    .toolbar {
+    .basic-info .form-control::placeholder {
+        color: #94a3b8;
+    }
+    .basic-info .input-group-text {
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        padding-left: 0;
+    }
+
+    /* ===== نوار ابزار ===== */
+    .toolbar-modern {
         display: flex;
         gap: 1rem;
         flex-wrap: wrap;
         margin-bottom: 1.5rem;
-        padding: 1rem;
-        background: #f8fafc;
-        border-radius: 16px;
-        border: 1px solid #eef2f6;
+        padding: 1rem 1.5rem;
+        background: var(--gray-light);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--gray-border);
     }
-    .toolbar .search-box {
+    .toolbar-modern .search-box {
         flex: 1;
         position: relative;
         min-width: 200px;
     }
-    .toolbar .search-box input {
-        padding-right: 2.8rem;
-        border-radius: 30px;
+    .toolbar-modern .search-box input {
+        width: 100%;
+        padding: 0.6rem 1rem 0.6rem 2.8rem;
+        border-radius: 50px;
         border: 1px solid #e2e8f0;
         background: #fff;
+        transition: var(--transition);
+        font-size: 0.95rem;
         height: 44px;
-        transition: all 0.2s;
-        width: 100%;
     }
-    .toolbar .search-box input:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    .toolbar-modern .search-box input:focus {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        outline: none;
     }
-    .toolbar .search-box i {
+    .toolbar-modern .search-box i {
         position: absolute;
-        right: 1rem;
+        right: 1.2rem;
         top: 50%;
         transform: translateY(-50%);
         color: #94a3b8;
+        font-size: 1rem;
     }
-    .toolbar .section-select {
-        min-width: 200px;
+    .toolbar-modern .filter-select {
+        min-width: 180px;
     }
-    .toolbar .section-select select {
-        border-radius: 30px;
-        border: 1px solid #e2e8f0;
+    .toolbar-modern .filter-select select {
+        width: 100%;
         height: 44px;
-        padding: 0 1rem;
+        border-radius: 50px;
+        border: 1px solid #e2e8f0;
         background: #fff;
+        padding: 0 1.2rem;
+        font-size: 0.95rem;
+        transition: var(--transition);
         cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: left 1rem center;
+        padding-left: 2.5rem;
     }
-    .toolbar .section-select select:focus {
-        border-color: #3b82f6;
+    .toolbar-modern .filter-select select:focus {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
         outline: none;
     }
-    .section-card {
-        border: 1px solid #eef2f6;
-        border-radius: 16px;
+
+    /* ===== پیشرفت تکمیل ===== */
+    .progress-modern {
+        margin-bottom: 2rem;
+        padding: 0.5rem 0;
+    }
+    .progress-modern .progress-track {
+        height: 8px;
+        border-radius: 10px;
+        background: #eef2f6;
+        overflow: hidden;
+        position: relative;
+    }
+    .progress-modern .progress-track .progress-fill {
+        height: 100%;
+        border-radius: 10px;
+        background: linear-gradient(90deg, var(--primary-blue), var(--primary-dark));
+        transition: width 0.6s ease;
+        width: 0%;
+    }
+    .progress-modern .progress-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+    .progress-modern .progress-info .percent {
+        font-weight: 700;
+        color: var(--primary-dark);
+        font-size: 1rem;
+    }
+
+    /* ===== کارت‌های بخش‌ها ===== */
+    .section-card-modern {
+        border: 1px solid var(--gray-border);
+        border-radius: var(--radius-lg);
         margin-bottom: 1rem;
         overflow: hidden;
-        transition: all 0.2s;
+        transition: var(--transition);
         background: #fff;
     }
-    .section-card .section-header {
-        padding: 0.8rem 1.2rem;
+    .section-card-modern:hover {
+        border-color: var(--primary-blue);
+        box-shadow: 0 4px 16px rgba(59, 130, 246, 0.06);
+    }
+    .section-card-modern .section-header {
+        padding: 0.9rem 1.5rem;
         cursor: pointer;
         display: flex;
         align-items: center;
-        gap: 0.8rem;
-        background: #fafbfc;
-        transition: background 0.2s;
-        border-bottom: 1px solid transparent;
+        gap: 1rem;
+        background: var(--gray-light);
+        transition: var(--transition);
         user-select: none;
+        border-bottom: 1px solid transparent;
     }
-    .section-card .section-header:hover {
+    .section-card-modern .section-header:hover {
         background: #f1f5f9;
     }
-    .section-card .section-header .icon {
+    .section-card-modern .section-header .icon {
         font-size: 1.2rem;
-        width: 2rem;
-        text-align: center;
-        color: #3b82f6;
+        width: 2.2rem;
+        height: 2.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--primary-light);
+        border-radius: 12px;
+        color: var(--primary-blue);
+        flex-shrink: 0;
     }
-    .section-card .section-header .title {
+    .section-card-modern .section-header .title {
         font-weight: 600;
-        color: #1e293b;
+        color: var(--text-dark);
         flex: 1;
+        font-size: 1rem;
     }
-    .section-card .section-header .count-badge {
+    .section-card-modern .section-header .count-badge {
         background: #e2e8f0;
-        color: #475569;
+        color: var(--text-muted);
         font-size: 0.7rem;
-        padding: 0.2rem 0.7rem;
-        border-radius: 30px;
+        padding: 0.2rem 0.8rem;
+        border-radius: 50px;
         font-weight: 500;
     }
-    .section-card .section-header .toggle-icon {
+    .section-card-modern .section-header .toggle-icon {
         color: #94a3b8;
         transition: transform 0.3s;
+        font-size: 0.9rem;
     }
-    .section-card .section-header .toggle-icon.open {
+    .section-card-modern .section-header .toggle-icon.open {
         transform: rotate(180deg);
     }
-    .section-card .section-body {
-        padding: 1rem 1.2rem;
+    .section-card-modern .section-body {
+        padding: 1.2rem 1.5rem;
         display: none;
+        background: #fff;
     }
-    .section-card .section-body.open {
+    .section-card-modern .section-body.open {
         display: block;
+        animation: fadeSlideIn 0.3s ease;
     }
-    .items-grid {
+
+    @keyframes fadeSlideIn {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== شبکه آیتم‌ها ===== */
+    .items-grid-modern {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0.8rem 1.5rem;
+        gap: 0.8rem 2rem;
     }
     @media (max-width: 768px) {
-        .items-grid {
+        .items-grid-modern {
             grid-template-columns: 1fr;
         }
     }
-    .item-row {
+
+    .item-row-modern {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.4rem 0;
-        border-bottom: 1px dashed #f1f5f9;
+        gap: 0.8rem;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid #f1f5f9;
     }
-    .item-row:last-child {
+    .item-row-modern:last-child {
         border-bottom: none;
     }
-    .item-row .item-label {
-        font-size: 0.85rem;
-        color: #334155;
+    .item-row-modern .item-label {
+        font-size: 0.9rem;
+        color: var(--text-dark);
         flex: 1;
         min-width: 120px;
+        font-weight: 500;
     }
-    .item-row .item-label .kpi-badge {
+    .item-row-modern .item-label .kpi-tag {
         background: #fef3c7;
         color: #b45309;
         font-size: 0.55rem;
-        padding: 0.1rem 0.4rem;
-        border-radius: 12px;
+        padding: 0.1rem 0.5rem;
+        border-radius: 30px;
         font-weight: 700;
-        margin-right: 0.3rem;
+        margin-right: 0.4rem;
+        display: inline-block;
     }
-    .item-row .item-control {
+    .item-row-modern .item-control {
         flex: 2;
-        min-width: 150px;
+        min-width: 140px;
     }
-    .item-row .item-control .form-control,
-    .item-row .item-control .form-select {
-        border-radius: 10px;
+    .item-row-modern .item-control .form-control,
+    .item-row-modern .item-control .form-select {
+        border-radius: var(--radius-md);
         border: 1px solid #e2e8f0;
-        padding: 0.35rem 0.7rem;
-        font-size: 0.85rem;
-        transition: all 0.2s;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
+        transition: var(--transition);
         height: 38px;
+        background: #fff;
     }
-    .item-row .item-control .form-control:focus,
-    .item-row .item-control .form-select:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    .item-row-modern .item-control .form-control:focus,
+    .item-row-modern .item-control .form-select:focus {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        outline: none;
     }
-    .item-row .item-control .form-switch {
-        padding-right: 2.2rem;
+    .item-row-modern .item-control .form-switch {
+        padding-right: 2.5rem;
     }
-    .item-row .item-control .form-switch .form-check-input {
-        width: 2.2rem;
-        height: 1.1rem;
+    .item-row-modern .item-control .form-switch .form-check-input {
+        width: 2.5rem;
+        height: 1.3rem;
         cursor: pointer;
+        border-radius: 30px;
+        border: 2px solid #cbd5e1;
+        transition: var(--transition);
     }
-    .item-row .item-control .form-switch .form-check-input:checked {
-        background-color: #3b82f6;
-        border-color: #3b82f6;
+    .item-row-modern .item-control .form-switch .form-check-input:checked {
+        background-color: var(--primary-blue);
+        border-color: var(--primary-blue);
     }
-    .item-row .item-control .unit-text {
+    .item-row-modern .item-control .unit-text {
         font-size: 0.7rem;
-        color: #94a3b8;
-        margin-right: 0.3rem;
+        color: var(--text-muted);
+        margin-right: 0.4rem;
     }
-    .progress-container {
-        margin-bottom: 1.5rem;
-    }
-    .progress-container .progress {
-        height: 6px;
-        border-radius: 10px;
-        background: #eef2f6;
-    }
-    .progress-container .progress-bar {
-        background: linear-gradient(90deg, #3b82f6, #0f2b5e);
-        border-radius: 10px;
-        transition: width 0.5s ease;
-    }
-    .progress-container .progress-text {
-        font-size: 0.8rem;
-        color: #64748b;
-        margin-top: 0.3rem;
-        text-align: left;
-    }
-    .submit-area {
+
+    /* ===== منطقه ثبت ===== */
+    .submit-area-modern {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -261,104 +379,217 @@
         gap: 1rem;
         margin-top: 2rem;
         padding-top: 1.5rem;
-        border-top: 2px solid #f1f5f9;
+        border-top: 2px solid var(--gray-border);
     }
-    .submit-area .info {
+    .submit-area-modern .info-text {
         font-size: 0.9rem;
-        color: #64748b;
+        color: var(--text-muted);
     }
-    .submit-area .info strong {
-        color: #0f2b5e;
+    .submit-area-modern .info-text strong {
+        color: var(--primary-dark);
     }
-    .btn-submit {
-        background: linear-gradient(135deg, #0f2b5e, #3b82f6);
+    .submit-area-modern .btn-submit-modern {
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue));
         border: none;
         color: #fff;
-        padding: 0.7rem 2.5rem;
-        border-radius: 40px;
+        padding: 0.75rem 2.5rem;
+        border-radius: 50px;
         font-weight: 600;
         font-size: 1rem;
-        transition: all 0.3s;
+        transition: var(--transition);
         box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 0.7rem;
+        gap: 0.8rem;
+        cursor: pointer;
     }
-    .btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+    .submit-area-modern .btn-submit-modern:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 28px rgba(59, 130, 246, 0.4);
         color: #fff;
     }
+    .submit-area-modern .btn-submit-modern:active {
+        transform: translateY(0);
+    }
+
+    /* ===== واکنش‌گرایی ===== */
+    @media (max-width: 992px) {
+        .form-wrapper {
+            padding: 1.5rem;
+        }
+    }
+    @media (max-width: 768px) {
+        .form-wrapper {
+            padding: 1rem;
+        }
+        .form-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .form-header .progress-badge {
+            justify-content: center;
+        }
+        .basic-info {
+            padding: 1rem;
+        }
+        .toolbar-modern {
+            flex-direction: column;
+        }
+        .toolbar-modern .search-box {
+            min-width: 100%;
+        }
+        .toolbar-modern .filter-select {
+            min-width: 100%;
+        }
+        .item-row-modern {
+            flex-wrap: wrap;
+        }
+        .item-row-modern .item-label {
+            flex: 0 0 100%;
+        }
+        .item-row-modern .item-control {
+            flex: 0 0 100%;
+        }
+        .submit-area-modern {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .submit-area-modern .btn-submit-modern {
+            justify-content: center;
+        }
+        .section-card-modern .section-header {
+            padding: 0.7rem 1rem;
+        }
+        .section-card-modern .section-body {
+            padding: 0.8rem 1rem;
+        }
+        .form-header .title-section h4 {
+            font-size: 1.2rem;
+        }
+    }
     @media (max-width: 576px) {
-        .form-container { padding: 1rem; }
-        .basic-info { padding: 1rem; }
-        .toolbar { flex-direction: column; }
-        .toolbar .search-box,
-        .toolbar .section-select { min-width: 100%; }
-        .item-row { flex-wrap: wrap; }
-        .item-row .item-label { flex: 0 0 100%; }
-        .item-row .item-control { flex: 0 0 100%; }
-        .submit-area { flex-direction: column; align-items: stretch; }
-        .btn-submit { justify-content: center; }
+        .form-wrapper {
+            padding: 0.8rem;
+            border-radius: var(--radius-lg);
+        }
+        .form-header .title-section h4 {
+            font-size: 1rem;
+        }
+        .form-header .title-section h4 i {
+            font-size: 1.2rem;
+        }
+        .form-header .progress-badge {
+            font-size: 0.75rem;
+            padding: 0.3rem 0.8rem;
+        }
+    }
+
+    /* ===== کپی دکمه ===== */
+    .btn-copy-modern {
+        border-radius: 50px;
+        padding: 0.4rem 1.2rem;
+        font-size: 0.85rem;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        color: var(--text-dark);
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .btn-copy-modern:hover {
+        background: var(--primary-light);
+        border-color: var(--primary-blue);
+        color: var(--primary-dark);
+    }
+    .btn-copy-modern i {
+        color: var(--primary-blue);
+    }
+    .copy-status {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        transition: var(--transition);
     }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<div class="form-container">
-    <!-- هدر فرم -->
+<div class="form-wrapper">
+    <!-- ===== هدر ===== -->
     <div class="form-header">
-        <div>
-            <h4><i class="fas fa-pen-to-square text-primary me-2"></i>ثبت داده‌های خط تولید</h4>
-            <span class="text-muted small">تمام آیتم‌های چک‌لیست را تکمیل کنید</span>
+        <div class="title-section">
+            <h4>
+                <i class="fas fa-clipboard-list"></i>
+                ثبت داده‌های خط تولید
+            </h4>
+            <div class="subtitle">
+                <i class="fas fa-info-circle text-primary" style="font-size:0.8rem;"></i>
+                تمام آیتم‌های مربوط به اپراتور انتخاب‌شده را تکمیل کنید
+            </div>
         </div>
-        <div class="badge-progress">
+        <div class="progress-badge">
             <i class="fas fa-check-circle"></i>
             <span id="filledCount">0</span> از <span id="totalItems">{{ total_items }}</span> آیتم تکمیل شده
         </div>
     </div>
 
     <form method="POST" id="recordForm" novalidate>
-        <!-- اطلاعات پایه -->
+        <!-- ===== اطلاعات پایه ===== -->
         <div class="basic-info">
-            <div class="row g-3">
-                <!-- در بخش اطلاعات پایه، تاریخ را به صورت شمسی نمایش دهید -->
-<div class="col-md-4">
-    <label class="form-label"><i class="fas fa-calendar-alt text-primary"></i> تاریخ (شمسی)</label>
-    <input type="text" name="shift_date_persian" class="form-control" id="persianDate" placeholder="مثال: ۱۴۰۴/۰۵/۲۵">
-    <input type="hidden" name="shift_date" id="gregorianDate">
-    <small class="text-muted">تاریخ را به شمسی وارد کنید</small>
-</div>
-                <div class="col-md-4">
-                    <label class="form-label"><i class="fas fa-clock text-primary"></i> شیفت</label>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">
+                        <i class="fas fa-calendar-alt text-primary"></i> تاریخ (شمسی)
+                        <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" name="shift_date_persian" class="form-control" id="persianDate" 
+                           placeholder="مثال: ۱۴۰۴/۰۵/۲۵" value="{{ today_persian }}" required>
+                    <small class="text-muted d-block mt-1" style="font-size:0.75rem;">
+                        قابل ویرایش برای ثبت تاریخ‌های گذشته
+                    </small>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">
+                        <i class="fas fa-clock text-primary"></i> شیفت
+                    </label>
                     <select name="shift_name" class="form-select">
-                        <option value="صبح">صبح</option>
-                        <option value="عصر">عصر</option>
-                        <option value="شب">شب</option>
+                        <option value="صبح">☀️ صبح</option>
+                        <option value="عصر">🌅 عصر</option>
+                        <option value="شب">🌙 شب</option>
                     </select>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label"><i class="fas fa-user text-primary"></i> اپراتور</label>
-                    <select name="operator_id" class="form-select">
-                        <option value="">انتخاب اپراتور</option>
+                    <label class="form-label">
+                        <i class="fas fa-user text-primary"></i> اپراتور
+                    </label>
+                    <select name="operator_id" class="form-select" id="operatorSelect" onchange="filterByOperator()">
+                        <option value="">👤 انتخاب اپراتور</option>
                         {% for op in operators %}
-                        <option value="{{ op.id }}">{{ op.name }} ({{ op.code }})</option>
+                        <option value="{{ op.id }}" {% if selected_operator_id == op.id %}selected{% endif %}>
+                            {{ op.name }} ({{ op.code }})
+                        </option>
                         {% endfor %}
                     </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn-copy-modern w-100" onclick="copyPrevious()">
+                        <i class="fas fa-copy"></i> کپی از روز قبل
+                    </button>
+                    <span id="copyStatus" class="copy-status d-block text-center mt-1"></span>
                 </div>
             </div>
         </div>
 
-        <!-- نوار ابزار -->
-        <div class="toolbar">
+        <!-- ===== نوار ابزار ===== -->
+        <div class="toolbar-modern">
             <div class="search-box">
                 <i class="fas fa-search"></i>
                 <input type="text" id="searchInput" placeholder="جستجو در آیتم‌ها..." class="form-control">
             </div>
-            <div class="section-select">
+            <div class="filter-select">
                 <select id="sectionFilter" class="form-select">
-                    <option value="all">همه بخش‌ها</option>
+                    <option value="all">📂 همه بخش‌ها</option>
                     {% for sec in sections %}
                     <option value="sec-{{ sec.id }}">{{ sec.name }} ({{ sec.items|length }})</option>
                     {% endfor %}
@@ -366,39 +597,42 @@
             </div>
         </div>
 
-        <!-- پیشرفت تکمیل -->
-        <div class="progress-container">
-            <div class="progress">
-                <div class="progress-bar" id="progressBar" style="width:0%"></div>
+        <!-- ===== پیشرفت تکمیل ===== -->
+        <div class="progress-modern">
+            <div class="progress-track">
+                <div class="progress-fill" id="progressBar"></div>
             </div>
-            <div class="progress-text" id="progressText">۰٪ تکمیل شده</div>
+            <div class="progress-info">
+                <span>تکمیل فرم</span>
+                <span class="percent" id="progressText">۰%</span>
+            </div>
         </div>
 
-        <!-- بخش‌های چک‌لیست (آکاردئون) -->
+        <!-- ===== بخش‌های چک‌لیست ===== -->
         <div id="sectionsContainer">
             {% for section in sections %}
-            <div class="section-card" id="sec-{{ section.id }}" data-section="{{ section.id }}">
-                <div class="section-header" data-bs-toggle="collapse" data-bs-target="#collapse{{ section.id }}" aria-expanded="false" aria-controls="collapse{{ section.id }}">
+            <div class="section-card-modern" id="sec-{{ section.id }}" data-section="{{ section.id }}">
+                <div class="section-header" data-bs-toggle="collapse" data-bs-target="#collapse{{ section.id }}" aria-expanded="false">
                     <span class="icon"><i class="fas {{ section.icon or 'fa-cog' }}"></i></span>
                     <span class="title">{{ section.name }}</span>
                     <span class="count-badge">{{ section.items|length }} آیتم</span>
                     <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
                 </div>
                 <div class="section-body collapse" id="collapse{{ section.id }}">
-                    <div class="items-grid">
+                    <div class="items-grid-modern">
                         {% for item in section.items %}
-                        <div class="item-row" data-search="{{ item.title }}">
+                        <div class="item-row-modern" data-search="{{ item.title }}">
                             <div class="item-label">
                                 {{ item.title }}
                                 {% if item.is_kpi %}
-                                <span class="kpi-badge">KPI</span>
+                                <span class="kpi-tag"><i class="fas fa-star"></i> KPI</span>
                                 {% endif %}
                             </div>
                             <div class="item-control">
                                 {% if item.field_type == 'checkbox' %}
                                     <div class="form-check form-switch">
                                         <input type="checkbox" name="item_{{ item.id }}" class="form-check-input" id="item_{{ item.id }}" {% if item.default_value == '1' %}checked{% endif %}>
-                                        <label class="form-check-label" for="item_{{ item.id }}">فعال</label>
+                                        <label class="form-check-label" for="item_{{ item.id }}" style="font-size:0.85rem; color:var(--text-muted);">فعال</label>
                                     </div>
                                 {% elif item.field_type == 'select' %}
                                     <select name="item_{{ item.id }}" class="form-select">
@@ -407,15 +641,19 @@
                                         {% endfor %}
                                     </select>
                                 {% elif item.field_type == 'number' %}
-                                    <input type="number" step="any" name="item_{{ item.id }}" class="form-control" placeholder="مقدار" value="{{ item.default_value }}">
-                                    {% if item.unit %}
-                                    <span class="unit-text">{{ item.unit }}</span>
-                                    {% endif %}
+                                    <div class="d-flex align-items-center gap-1">
+                                        <input type="number" step="any" name="item_{{ item.id }}" class="form-control" placeholder="۰" value="{{ item.default_value }}">
+                                        {% if item.unit %}
+                                        <span class="unit-text">{{ item.unit }}</span>
+                                        {% endif %}
+                                    </div>
                                 {% else %}
-                                    <input type="text" name="item_{{ item.id }}" class="form-control" placeholder="مقدار" value="{{ item.default_value }}">
-                                    {% if item.unit %}
-                                    <span class="unit-text">{{ item.unit }}</span>
-                                    {% endif %}
+                                    <div class="d-flex align-items-center gap-1">
+                                        <input type="text" name="item_{{ item.id }}" class="form-control" placeholder="مقدار" value="{{ item.default_value }}">
+                                        {% if item.unit %}
+                                        <span class="unit-text">{{ item.unit }}</span>
+                                        {% endif %}
+                                    </div>
                                 {% endif %}
                             </div>
                         </div>
@@ -426,13 +664,13 @@
             {% endfor %}
         </div>
 
-        <!-- دکمه ثبت -->
-        <div class="submit-area">
-            <div class="info">
+        <!-- ===== دکمه ثبت ===== -->
+        <div class="submit-area-modern">
+            <div class="info-text">
                 <i class="fas fa-info-circle text-primary"></i>
                 <span id="filledInfo">0</span> از <span id="totalInfo">{{ total_items }}</span> آیتم تکمیل شده
             </div>
-            <button type="submit" class="btn-submit">
+            <button type="submit" class="btn-submit-modern" id="submitBtn">
                 <i class="fas fa-save"></i> ذخیره رکورد
             </button>
         </div>
@@ -444,10 +682,11 @@
 {% block scripts %}
 <script>
 $(function(){
+    // ===== شمارش آیتم‌های تکمیل شده =====
     function countFilled() {
         let total = 0;
         let filled = 0;
-        $('.item-row').each(function() {
+        $('.item-row-modern').each(function() {
             total++;
             const control = $(this).find('.item-control');
             const input = control.find('input, select');
@@ -465,39 +704,37 @@ $(function(){
         });
         const percent = total > 0 ? Math.round((filled / total) * 100) : 0;
         $('#progressBar').css('width', percent + '%');
-        $('#progressText').text(percent + '% تکمیل شده');
+        $('#progressText').text(percent + '%');
         $('#filledCount').text(filled);
         $('#filledInfo').text(filled);
         return filled;
     }
 
+    // ===== جستجو =====
     $('#searchInput').on('keyup', function() {
         const query = $(this).val().toLowerCase().trim();
         if (query === '') {
-            $('.item-row').show();
-            $('.section-card').show();
+            $('.item-row-modern').show();
+            $('.section-card-modern').show();
             $('.section-body').removeClass('open');
-            $('.section-header .toggle-icon .fa-chevron-down').removeClass('open');
-            // باز کردن اولین بخش به صورت پیش‌فرض
-            $('.section-card:first .section-body').addClass('open');
-            $('.section-card:first .toggle-icon .fa-chevron-down').addClass('open');
+            $('.section-card-modern:first .section-body').addClass('open');
+            $('.section-card-modern:first .toggle-icon').addClass('open');
             return;
         }
-        $('.item-row').each(function() {
+        $('.item-row-modern').each(function() {
             const text = $(this).data('search').toLowerCase();
             if (text.includes(query)) {
                 $(this).show();
-                const parentCard = $(this).closest('.section-card');
-                const body = parentCard.find('.section-body');
-                body.addClass('open');
-                parentCard.find('.toggle-icon .fa-chevron-down').addClass('open');
+                const parentCard = $(this).closest('.section-card-modern');
+                parentCard.find('.section-body').addClass('open');
+                parentCard.find('.toggle-icon').addClass('open');
                 parentCard.show();
             } else {
                 $(this).hide();
             }
         });
-        $('.section-card').each(function() {
-            if ($(this).find('.item-row:visible').length === 0) {
+        $('.section-card-modern').each(function() {
+            if ($(this).find('.item-row-modern:visible').length === 0) {
                 $(this).hide();
             } else {
                 $(this).show();
@@ -505,41 +742,113 @@ $(function(){
         });
     });
 
+    // ===== فیلتر بخش =====
     $('#sectionFilter').on('change', function() {
         const val = $(this).val();
         if (val === 'all') {
-            $('.section-card').show();
+            $('.section-card-modern').show();
         } else {
-            $('.section-card').hide();
+            $('.section-card-modern').hide();
             $('#' + val).show();
         }
         $('.section-body').removeClass('open');
-        $('.section-header .toggle-icon .fa-chevron-down').removeClass('open');
+        $('.toggle-icon').removeClass('open');
         if (val !== 'all') {
-            const target = $('#' + val);
-            target.find('.section-body').addClass('open');
-            target.find('.toggle-icon .fa-chevron-down').addClass('open');
+            $('#' + val).find('.section-body').addClass('open');
+            $('#' + val).find('.toggle-icon').addClass('open');
         } else {
-            $('.section-card:first .section-body').addClass('open');
-            $('.section-card:first .toggle-icon .fa-chevron-down').addClass('open');
+            $('.section-card-modern:first .section-body').addClass('open');
+            $('.section-card-modern:first .toggle-icon').addClass('open');
         }
     });
 
+    // ===== باز/بسته کردن بخش‌ها =====
     $('.section-header').on('click', function() {
-        const body = $(this).next('.section-body');
-        body.toggleClass('open');
-        $(this).find('.toggle-icon .fa-chevron-down').toggleClass('open');
+        $(this).next('.section-body').toggleClass('open');
+        $(this).find('.toggle-icon').toggleClass('open');
     });
 
-    $('.item-row input, .item-row select').on('change input', function() {
+    // ===== به‌روزرسانی پیشرفت =====
+    $('.item-row-modern input, .item-row-modern select').on('change input', function() {
         countFilled();
     });
 
+    // ===== مقداردهی اولیه =====
     countFilled();
+    $('.section-card-modern:first .section-body').addClass('open');
+    $('.section-card-modern:first .toggle-icon').addClass('open');
 
-    // باز کردن اولین بخش به صورت پیش‌فرض
-    $('.section-card:first .section-body').addClass('open');
-    $('.section-card:first .toggle-icon .fa-chevron-down').addClass('open');
+    // ===== کپی از روز قبل =====
+    window.copyPrevious = function() {
+        const dateInput = document.getElementById('persianDate');
+        const date = dateInput.value;
+        if (!date) {
+            alert('لطفاً تاریخ را وارد کنید.');
+            return;
+        }
+        const parts = date.split('/');
+        if (parts.length !== 3 || parts.some(p => isNaN(parseInt(p)))) {
+            alert('فرمت تاریخ نامعتبر است. مثال صحیح: ۱۴۰۴/۰۵/۲۵');
+            return;
+        }
+        $('#copyStatus').text('⏳ در حال کپی...');
+        $('#copyStatus').css('color', '#0f2b5e');
+        $.ajax({
+            url: '/record/copy_previous',
+            method: 'POST',
+            data: { shift_date_persian: date },
+            success: function() {
+                window.location.reload();
+            },
+            error: function() {
+                $('#copyStatus').text('❌ خطا در کپی. دوباره تلاش کنید.');
+                $('#copyStatus').css('color', '#dc2626');
+                setTimeout(function() {
+                    $('#copyStatus').text('');
+                }, 4000);
+            }
+        });
+    };
+
+    // ===== فیلتر بر اساس اپراتور =====
+    window.filterByOperator = function() {
+        const operatorId = document.getElementById('operatorSelect').value;
+        const currentUrl = new URL(window.location.href);
+        if (operatorId) {
+            currentUrl.searchParams.set('operator_id', operatorId);
+        } else {
+            currentUrl.searchParams.delete('operator_id');
+        }
+        window.location.href = currentUrl.toString();
+    };
+});
+
+// ===== اعتبارسنجی سمت کاربر =====
+document.getElementById('recordForm').addEventListener('submit', function(e) {
+    const total = {{ total_items }};
+    const filled = parseInt(document.getElementById('filledCount').textContent);
+    if (filled < total) {
+        e.preventDefault();
+        alert('⚠️ لطفاً تمام آیتم‌های مربوط به اپراتور انتخاب‌شده را پر کنید.\n' + 
+              '(' + filled + ' از ' + total + ' آیتم تکمیل شده)');
+        return false;
+    }
+    const dateInput = document.getElementById('persianDate');
+    const dateValue = dateInput.value.trim();
+    if (!dateValue) {
+        e.preventDefault();
+        alert('لطفاً تاریخ را به شمسی وارد کنید.');
+        dateInput.focus();
+        return false;
+    }
+    const parts = dateValue.split('/');
+    if (parts.length !== 3 || parts.some(p => isNaN(parseInt(p)))) {
+        e.preventDefault();
+        alert('فرمت تاریخ نامعتبر است. مثال صحیح: ۱۴۰۴/۰۵/۲۵');
+        dateInput.focus();
+        return false;
+    }
+    return true;
 });
 </script>
 {% endblock %}

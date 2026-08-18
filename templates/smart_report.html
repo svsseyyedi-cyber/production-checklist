@@ -144,7 +144,9 @@
 $(function(){
     const ctx = document.getElementById('trendChart').getContext('2d');
     const trendData = {{ trends|tojson|safe }};
-    const labels = trendData.map(item => item.date ? '{{ jalali(item.date) }}' : '');
+    
+    // حالا trendData شامل تاریخ‌های شمسی به‌صورت رشته است
+    const labels = trendData.map(item => item.date);
     const values = trendData.map(item => item.efficiency);
     
     new Chart(ctx, {

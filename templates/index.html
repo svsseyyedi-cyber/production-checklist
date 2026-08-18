@@ -1,175 +1,714 @@
 {% extends "base.html" %}
 {% block page_title %}داشبورد مدیریت تولید{% endblock %}
 
+{% block styles %}
+<style>
+    :root {
+        --primary-dark: #0f2b5e;
+        --primary-blue: #3b82f6;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --gray-light: #f8fafc;
+        --gray-border: #eef2f6;
+        --text-dark: #1e293b;
+        --text-muted: #64748b;
+        --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.06);
+        --radius-lg: 16px;
+        --radius-md: 12px;
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ===== انتخاب تاریخ ===== */
+    .date-selector {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        padding: 1rem 1.5rem;
+        border: 1px solid var(--gray-border);
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-soft);
+    }
+    .date-selector label {
+        font-weight: 600;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .date-selector input[type="date"] {
+        padding: 0.4rem 1rem;
+        border-radius: var(--radius-md);
+        border: 1px solid #e2e8f0;
+        transition: var(--transition);
+        font-size: 0.95rem;
+    }
+    .date-selector input[type="date"]:focus {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        outline: none;
+    }
+    .date-selector .btn-date {
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue));
+        color: #fff;
+        border: none;
+        padding: 0.4rem 1.5rem;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: var(--transition);
+        cursor: pointer;
+    }
+    .date-selector .btn-date:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+    }
+    .date-selector .btn-today {
+        background: var(--gray-light);
+        border: 1px solid #e2e8f0;
+        padding: 0.4rem 1.5rem;
+        border-radius: 30px;
+        font-weight: 500;
+        color: var(--text-dark);
+        transition: var(--transition);
+        cursor: pointer;
+        text-decoration: none;
+    }
+    .date-selector .btn-today:hover {
+        background: #e2e8f0;
+    }
+    .date-selector .date-info {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        margin-right: auto;
+    }
+
+    /* ===== کارت‌های آماری ===== */
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    .stat-card {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        padding: 1.2rem 1.5rem;
+        border: 1px solid var(--gray-border);
+        box-shadow: var(--shadow-soft);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+    .stat-card .stat-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        color: #fff;
+        margin-bottom: 0.6rem;
+    }
+    .stat-card .stat-icon.blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .stat-card .stat-icon.green { background: linear-gradient(135deg, #10b981, #059669); }
+    .stat-card .stat-icon.orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .stat-card .stat-icon.red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .stat-card .stat-icon.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .stat-card .stat-icon.teal { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+    .stat-card .stat-icon.pink { background: linear-gradient(135deg, #ec4899, #db2777); }
+    .stat-card .stat-icon.indigo { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+    
+    .stat-card .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        line-height: 1.2;
+    }
+    .stat-card .stat-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin-top: 0.2rem;
+    }
+    .stat-card .stat-change {
+        font-size: 0.75rem;
+        margin-top: 0.3rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .stat-card .stat-change.up { color: var(--success); }
+    .stat-card .stat-change.down { color: var(--danger); }
+    .stat-card .stat-change.neutral { color: var(--text-muted); }
+
+    /* ===== بخش نمودارها ===== */
+    .chart-section {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    @media (max-width: 992px) {
+        .chart-section {
+            grid-template-columns: 1fr;
+        }
+    }
+    .chart-card {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        padding: 1.2rem 1.5rem;
+        border: 1px solid var(--gray-border);
+        box-shadow: var(--shadow-soft);
+    }
+    .chart-card .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .chart-card .chart-header h6 {
+        font-weight: 600;
+        color: var(--text-dark);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .chart-card .chart-header h6 i {
+        color: var(--primary-blue);
+    }
+    .chart-card .chart-body {
+        position: relative;
+        height: 220px;
+    }
+    .chart-card .chart-body canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* ===== جدول عملکرد اپراتورها ===== */
+    .operator-table-wrapper {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--gray-border);
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+        margin-bottom: 2rem;
+    }
+    .operator-table-wrapper .table-header {
+        padding: 1rem 1.5rem;
+        background: var(--gray-light);
+        border-bottom: 1px solid var(--gray-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .operator-table-wrapper .table-header h6 {
+        margin: 0;
+        font-weight: 600;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .operator-table-wrapper .table-responsive {
+        padding: 0;
+    }
+    .operator-table-wrapper table {
+        margin: 0;
+        font-size: 0.9rem;
+    }
+    .operator-table-wrapper table thead th {
+        background: var(--gray-light);
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        padding: 0.7rem 1rem;
+        border-bottom: 2px solid var(--gray-border);
+        white-space: nowrap;
+    }
+    .operator-table-wrapper table tbody td {
+        padding: 0.6rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--gray-border);
+    }
+    .operator-table-wrapper table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    .operator-table-wrapper table tbody tr:hover {
+        background: var(--gray-light);
+    }
+    .operator-table-wrapper .badge-score {
+        padding: 0.2rem 0.8rem;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.75rem;
+    }
+    .badge-score.excellent { background: #dcfce7; color: #166534; }
+    .badge-score.good { background: #fef3c7; color: #92400e; }
+    .badge-score.poor { background: #fee2e2; color: #991b1b; }
+
+    /* ===== توقف‌های اخیر ===== */
+    .stops-list {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--gray-border);
+        padding: 1.2rem 1.5rem;
+        box-shadow: var(--shadow-soft);
+        margin-bottom: 2rem;
+    }
+    .stops-list .stops-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.8rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .stops-list .stops-header h6 {
+        margin: 0;
+        font-weight: 600;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .stops-list .stops-header h6 i {
+        color: var(--danger);
+    }
+    .stops-list .stop-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--gray-border);
+    }
+    .stops-list .stop-item:last-child {
+        border-bottom: none;
+    }
+    .stops-list .stop-item .stop-info {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+    .stops-list .stop-item .stop-info i {
+        color: var(--danger);
+    }
+    .stops-list .stop-item .stop-info .machine {
+        font-weight: 500;
+        color: var(--text-dark);
+    }
+    .stops-list .stop-item .stop-info .cause {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+    .stops-list .stop-item .stop-duration {
+        font-weight: 600;
+        color: var(--danger);
+        background: #fee2e2;
+        padding: 0.2rem 0.8rem;
+        border-radius: 30px;
+        font-size: 0.8rem;
+    }
+
+    /* ===== خالی ===== */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--text-muted);
+    }
+    .empty-state i {
+        font-size: 3rem;
+        opacity: 0.3;
+        display: block;
+        margin-bottom: 1rem;
+    }
+    .empty-state h5 {
+        color: var(--text-dark);
+    }
+
+    /* ===== واکنش‌گرایی ===== */
+    @media (max-width: 768px) {
+        .stat-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .date-selector {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .date-selector .date-info {
+            margin-right: 0;
+            text-align: center;
+        }
+        .operator-table-wrapper .table-responsive {
+            font-size: 0.75rem;
+        }
+        .operator-table-wrapper table thead th,
+        .operator-table-wrapper table tbody td {
+            padding: 0.4rem 0.6rem;
+        }
+        .chart-card .chart-body {
+            height: 180px;
+        }
+    }
+    @media (max-width: 576px) {
+        .stat-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        .stat-card {
+            padding: 0.8rem 1rem;
+        }
+        .stat-card .stat-number {
+            font-size: 1.3rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 
-<!-- ردیف اول: ۴ کارت آماری -->
-<div class="row g-4 mb-4">
-    <div class="col-lg-3 col-md-6">
-        <div class="stat-card bg-gradient-blue">
-            <div class="icon"><i class="fas fa-chart-line"></i></div>
-            <div class="number">{{ summary.get('راندمان', '۰') }}%</div>
-            <div class="label">راندمان خط تولید</div>
+<!-- ===== انتخاب تاریخ ===== -->
+<div class="date-selector">
+    <label>
+        <i class="fas fa-calendar-alt text-primary"></i>
+        تاریخ:
+    </label>
+    <form method="GET" class="d-flex gap-2 align-items-center flex-wrap">
+        <input type="date" name="date" value="{{ selected_date }}" class="form-control" style="width:auto;">
+        <button type="submit" class="btn-date">
+            <i class="fas fa-search"></i> نمایش
+        </button>
+        <a href="{{ url_for('index') }}" class="btn-today">
+            <i class="fas fa-calendar-day"></i> امروز
+        </a>
+    </form>
+    <span class="date-info">
+        <i class="fas fa-info-circle"></i>
+        آخرین داده: {{ jalali(last_date) if last_date else '—' }}
+    </span>
+</div>
+
+{% if not has_data %}
+<!-- ===== حالت بدون داده ===== -->
+<div class="empty-state">
+    <i class="fas fa-database"></i>
+    <h5>هیچ داده‌ای برای نمایش وجود ندارد</h5>
+    <p>برای شروع، از طریق <a href="{{ url_for('add_record') }}">ثبت داده</a> اطلاعات خط تولید را وارد کنید.</p>
+</div>
+{% else %}
+
+<!-- ===== کارت‌های آماری ===== -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-chart-line"></i></div>
+        <div class="stat-number">{{ "%.1f"|format(summary.efficiency) }}%</div>
+        <div class="stat-label">راندمان خط تولید</div>
+        <div class="stat-change {% if summary.efficiency >= 80 %}up{% elif summary.efficiency >= 60 %}neutral{% else %}down{% endif %}">
+            {% if summary.efficiency >= 80 %}
+                <i class="fas fa-arrow-up"></i> عالی
+            {% elif summary.efficiency >= 60 %}
+                <i class="fas fa-minus"></i> متوسط
+            {% else %}
+                <i class="fas fa-arrow-down"></i> نیاز به بهبود
+            {% endif %}
         </div>
     </div>
-    <div class="col-lg-3 col-md-6">
-        <div class="stat-card bg-gradient-orange">
-            <div class="icon"><i class="fas fa-stopwatch"></i></div>
-            <div class="number">{{ summary.get('مجموع توقف روزانه', '۰') }} <small style="font-size:1.2rem;">دقیقه</small></div>
-            <div class="label">توقف‌های امروز</div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-microchip"></i></div>
+        <div class="stat-number">{{ "%.1f"|format(summary.oee) }}%</div>
+        <div class="stat-label">اثربخشی کلی (OEE)</div>
+        <div class="stat-change {% if summary.oee >= 85 %}up{% elif summary.oee >= 70 %}neutral{% else %}down{% endif %}">
+            {% if summary.oee >= 85 %}
+                <i class="fas fa-arrow-up"></i> عالی
+            {% elif summary.oee >= 70 %}
+                <i class="fas fa-minus"></i> خوب
+            {% else %}
+                <i class="fas fa-arrow-down"></i> نیاز به بهبود
+            {% endif %}
         </div>
     </div>
-    <div class="col-lg-3 col-md-6">
-        <div class="stat-card bg-gradient-green">
-            <div class="icon"><i class="fas fa-boxes"></i></div>
-            <div class="number">{{ summary.get('تولید واقعی', '۰') }}</div>
-            <div class="label">تولید امروز (بطری)</div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="fas fa-stopwatch"></i></div>
+        <div class="stat-number">{{ summary.stop_total|int }} <small style="font-size:1rem;">دقیقه</small></div>
+        <div class="stat-label">مجموع توقف</div>
+        <div class="stat-change {% if summary.stop_total <= 30 %}up{% elif summary.stop_total <= 60 %}neutral{% else %}down{% endif %}">
+            {% if summary.stop_total <= 30 %}
+                <i class="fas fa-arrow-up"></i> قابل‌قبول
+            {% elif summary.stop_total <= 60 %}
+                <i class="fas fa-minus"></i> متوسط
+            {% else %}
+                <i class="fas fa-arrow-down"></i> زیاد
+            {% endif %}
         </div>
     </div>
-    <div class="col-lg-3 col-md-6">
-        <div class="stat-card bg-gradient-purple">
-            <div class="icon"><i class="fas fa-microchip"></i></div>
-            <div class="number">{{ summary.get('OEE', '۰') }}%</div>
-            <div class="label">اثربخشی کلی تجهیزات</div>
+    <div class="stat-card">
+        <div class="stat-icon purple"><i class="fas fa-boxes"></i></div>
+        <div class="stat-number">{{ summary.production_actual|int }}</div>
+        <div class="stat-label">تولید واقعی (بطری)</div>
+        <div class="stat-change {% if summary.achievement >= 95 %}up{% elif summary.achievement >= 80 %}neutral{% else %}down{% endif %}">
+            {% if summary.achievement >= 95 %}
+                <i class="fas fa-arrow-up"></i> {{ "%.1f"|format(summary.achievement) }}% تحقق
+            {% elif summary.achievement >= 80 %}
+                <i class="fas fa-minus"></i> {{ "%.1f"|format(summary.achievement) }}% تحقق
+            {% else %}
+                <i class="fas fa-arrow-down"></i> {{ "%.1f"|format(summary.achievement) }}% تحقق
+            {% endif %}
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red"><i class="fas fa-trash"></i></div>
+        <div class="stat-number">{{ "%.0f"|format(summary.waste_total) }}</div>
+        <div class="stat-label">ضایعات (ریال)</div>
+        <div class="stat-change {% if summary.waste_total <= 100000 %}up{% elif summary.waste_total <= 300000 %}neutral{% else %}down{% endif %}">
+            {% if summary.waste_total <= 100000 %}
+                <i class="fas fa-arrow-up"></i> کم
+            {% elif summary.waste_total <= 300000 %}
+                <i class="fas fa-minus"></i> متوسط
+            {% else %}
+                <i class="fas fa-arrow-down"></i> زیاد
+            {% endif %}
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon teal"><i class="fas fa-bottleneck"></i></div>
+        <div class="stat-number" style="font-size:1.2rem;">{{ summary.bottleneck }}</div>
+        <div class="stat-label">گلوگاه خط</div>
+        <div class="stat-change neutral">
+            <i class="fas fa-info-circle"></i> کندترین دستگاه
         </div>
     </div>
 </div>
 
-<!-- ردیف دوم: نمودارها -->
-<div class="row g-4 mb-4">
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header"><i class="fas fa-chart-area text-primary me-2"></i> روند OEE در ۷ روز اخیر</div>
-            <div class="card-body">
-                <canvas id="oeeChart" style="height:220px; width:100%;"></canvas>
-            </div>
+<!-- ===== نمودارها ===== -->
+<div class="chart-section">
+    <div class="chart-card">
+        <div class="chart-header">
+            <h6><i class="fas fa-chart-area"></i> روند راندمان و OEE</h6>
+            <span class="text-muted small">۷ روز اخیر</span>
+        </div>
+        <div class="chart-body">
+            <canvas id="trendChart"></canvas>
         </div>
     </div>
-    <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header"><i class="fas fa-user-tie text-success me-2"></i> عملکرد اپراتورها</div>
-            <div class="card-body">
-                <canvas id="operatorChart" style="height:220px; width:100%;"></canvas>
-            </div>
+    <div class="chart-card">
+        <div class="chart-header">
+            <h6><i class="fas fa-chart-bar"></i> توقف روزانه</h6>
+            <span class="text-muted small">۷ روز اخیر</span>
+        </div>
+        <div class="chart-body">
+            <canvas id="stopChart"></canvas>
         </div>
     </div>
 </div>
 
-<!-- ردیف سوم: گلوگاه، توقف‌ها و شیفت‌ها -->
-<div class="row g-4">
-    <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header"><i class="fas fa-exclamation-triangle text-danger me-2"></i> گلوگاه فعلی</div>
-            <div class="card-body text-center">
-                <span class="badge bg-danger badge-custom" style="font-size:1.4rem; padding:0.6rem 1.8rem;">
-                    {{ summary.get('گلوگاه', 'نامشخص') }}
-                </span>
-                <p class="text-muted mt-3">کندترین دستگاه خط</p>
-                <hr>
-                <h6>اقدامات پیشنهادی:</h6>
-                <ul class="list-unstyled text-start">
-                    <li><i class="fas fa-wrench text-warning"></i> بررسی تنظیمات دستگاه</li>
-                    <li><i class="fas fa-users text-info"></i> آموزش اپراتور مربوطه</li>
-                    <li><i class="fas fa-clock text-success"></i> برنامه تعمیرات پیشگیرانه</li>
-                </ul>
-            </div>
+<!-- ===== عملکرد شیفت‌ها ===== -->
+<div class="stat-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 2rem;">
+    {% for shift in shift_performance %}
+    <div class="stat-card" style="text-align:center;">
+        <div class="stat-icon blue" style="margin:0 auto 0.6rem;">
+            <i class="fas fa-{% if shift.name == 'صبح' %}sun{% elif shift.name == 'عصر' %}cloud-sun{% else %}moon{% endif %}"></i>
+        </div>
+        <div class="stat-label" style="font-weight:600; color:var(--text-dark);">{{ shift.name }}</div>
+        <div class="stat-number" style="font-size:1.4rem;">{{ "%.1f"|format(shift.efficiency) }}%</div>
+        <div class="stat-label">راندمان</div>
+        <div class="stat-change neutral">
+            تولید: {{ shift.production|int }} | توقف: {{ shift.stops|int }} دقیقه
+        </div>
+        <div class="stat-label mt-1">
+            امتیاز: <strong>{{ "%.1f"|format(shift.score) }}</strong>
         </div>
     </div>
-    <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header"><i class="fas fa-history text-info me-2"></i> آخرین توقف‌ها</div>
-            <div class="card-body">
-                <ul class="list-unstyled">
-                    {% for stop in recent_stops %}
-                    <li class="stop-item d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-stop-circle text-danger"></i> {{ stop.machine_name }}</span>
-                        <span class="badge bg-warning">{{ stop.stop_duration }} دقیقه</span>
-                    </li>
-                    {% else %}
-                    <li class="text-muted">هیچ توقفی ثبت نشده</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
+    {% endfor %}
+</div>
+
+<!-- ===== عملکرد اپراتورها ===== -->
+<div class="operator-table-wrapper">
+    <div class="table-header">
+        <h6><i class="fas fa-users text-primary"></i> عملکرد اپراتورها</h6>
+        <span class="badge bg-light text-dark">{{ operator_performance|length }} نفر</span>
     </div>
-    <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header"><i class="fas fa-calendar-alt text-primary me-2"></i> عملکرد شیفت‌ها (امروز)</div>
-            <div class="card-body">
-                <table class="table table-sm table-borderless shift-table">
-                    <thead>
-                        <tr><th>شیفت</th><th>راندمان</th><th>امتیاز</th></tr>
-                    </thead>
-                    <tbody>
-                        {% for shift in shift_performance %}
-                        <tr>
-                            <td>{{ shift.name }}</td>
-                            <td><span class="badge bg-{{ 'success' if shift.efficiency > 85 else 'warning' if shift.efficiency > 70 else 'danger' }}">{{ shift.efficiency }}%</span></td>
-                            <td><i class="fas fa-star text-warning"></i> {{ shift.score }}</td>
-                        </tr>
-                        {% else %}
-                        <tr><td colspan="3" class="text-muted">داده‌ای موجود نیست</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>اپراتور</th>
+                    <th>کد</th>
+                    <th>راندمان</th>
+                    <th>تولید</th>
+                    <th>توقف</th>
+                    <th>ضایعات</th>
+                    <th>امتیاز</th>
+                    <th>وضعیت</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for op in operator_performance %}
+                <tr>
+                    <td class="fw-semibold">{{ op.operator.name }}</td>
+                    <td>{{ op.operator.code }}</td>
+                    <td>{{ "%.1f"|format(op.efficiency) }}%</td>
+                    <td>{{ op.production_actual|int }}</td>
+                    <td>{{ op.stops|int }}</td>
+                    <td>{{ "%.0f"|format(op.waste) }}</td>
+                    <td class="fw-bold">{{ "%.1f"|format(op.score) }}</td>
+                    <td>
+                        <span class="badge-score {% if op.score >= 80 %}excellent{% elif op.score >= 60 %}good{% else %}poor{% endif %}">
+                            {% if op.score >= 80 %}عالی{% elif op.score >= 60 %}متوسط{% else %}نیاز به بهبود{% endif %}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted">هیچ داده‌ای برای اپراتورها وجود ندارد</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
+
+<!-- ===== توقف‌های اخیر ===== -->
+<div class="stops-list">
+    <div class="stops-header">
+        <h6><i class="fas fa-history"></i> آخرین توقف‌ها</h6>
+        <span class="badge bg-light text-dark">{{ recent_stops|length }} مورد</span>
+    </div>
+    {% if recent_stops %}
+        {% for stop in recent_stops %}
+        <div class="stop-item">
+            <div class="stop-info">
+                <i class="fas fa-stop-circle"></i>
+                <span class="machine">{{ stop.machine_name }}</span>
+                <span class="cause">— {{ stop.root_cause or 'علت نامشخص' }}</span>
+                <span class="text-muted small">{{ jalali(stop.shift_date) }}</span>
+            </div>
+            <span class="stop-duration">{{ stop.stop_duration }} دقیقه</span>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center text-muted py-3">
+            <i class="fas fa-check-circle text-success"></i> هیچ توقفی ثبت نشده است.
+        </div>
+    {% endif %}
+</div>
+
+{% endif %}
 
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 $(function(){
-    // نمودار OEE
-    $.get('/api/oee_data', function(data){
-        new Chart(document.getElementById('oeeChart'), {
-            type: 'line',
-            data: {
-                labels: data.dates,
-                datasets: [{
-                    label: 'OEE %',
-                    data: data.oee,
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+    {% if has_data %}
+    
+    // ===== نمودار روند راندمان و OEE =====
+    const trendCtx = document.getElementById('trendChart').getContext('2d');
+    const oeeData = {{ oee_trend|tojson|safe }};
+    const effData = {{ efficiency_trend|tojson|safe }};
+    
+    const labels = oeeData.map(item => {
+        const d = new Date(item.date);
+        return d.toLocaleDateString('fa-IR');
+    });
+    
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'OEE',
+                    data: oeeData.map(item => item.oee),
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     tension: 0.3,
                     fill: true,
-                    pointBackgroundColor: '#667eea',
-                    pointBorderColor: '#fff',
+                    pointBackgroundColor: '#3b82f6',
                     pointRadius: 4,
-                }]
+                },
+                {
+                    label: 'راندمان',
+                    data: effData.map(item => item.efficiency),
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#10b981',
+                    pointRadius: 4,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { boxWidth: 12, padding: 12 }
+                }
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, max: 100 } }
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { callback: function(v) { return v + '%'; } }
+                }
             }
-        });
+        }
     });
 
-    // نمودار اپراتورها
-    $.get('/api/operator_performance', function(data){
-        new Chart(document.getElementById('operatorChart'), {
-            type: 'bar',
-            data: {
-                labels: data.names,
-                datasets: [{
-                    label: 'امتیاز',
-                    data: data.scores,
-                    backgroundColor: ['#4facfe', '#43e97b', '#fa709a', '#f6d365', '#a18cd1'],
-                    borderRadius: 6,
-                }]
+    // ===== نمودار توقف =====
+    const stopCtx = document.getElementById('stopChart').getContext('2d');
+    const stopData = {{ stop_trend|tojson|safe }};
+    
+    new Chart(stopCtx, {
+        type: 'bar',
+        data: {
+            labels: stopData.map(item => {
+                const d = new Date(item.date);
+                return d.toLocaleDateString('fa-IR');
+            }),
+            datasets: [{
+                label: 'توقف (دقیقه)',
+                data: stopData.map(item => item.stops),
+                backgroundColor: stopData.map(item => 
+                    item.stops > 60 ? '#ef4444' : 
+                    item.stops > 30 ? '#f59e0b' : '#10b981'
+                ),
+                borderRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true } }
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { callback: function(v) { return v + ' دقیقه'; } }
+                }
             }
-        });
+        }
     });
+    
+    {% endif %}
 });
 </script>
 {% endblock %}

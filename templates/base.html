@@ -292,17 +292,13 @@
                 <i class="fas fa-calendar-alt"></i>
                 {{ jalali(now) }}
             </div>
-            <div class="user">
-                <i class="fas fa-user-circle"></i>
-                <span class="d-none d-sm-inline">{{ username if username else 'کاربر' }}</span>
-            </div>
-            <a href="{{ url_for('logout') }}" class="logout-btn" title="خروج از سیستم">
-                <i class="fas fa-sign-out-alt"></i>
-            </a>
-            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
+<div class="user">
+    <i class="fas fa-user-circle"></i>
+    <span class="d-none d-sm-inline">{{ username if username else 'کاربر' }}</span>
+    <a href="{{ url_for('change_password') }}" class="text-muted ms-2" title="تغییر رمز عبور" style="font-size:0.8rem;">
+        <i class="fas fa-key"></i>
+    </a>
+</div>
     </header>
 
     <!-- ==================== SIDEBAR ==================== -->

@@ -7,7 +7,8 @@
         <h5 class="mb-0"><i class="fas fa-weight-scale text-primary me-2"></i>تنظیم وزن و تأثیر آیتم‌ها</h5>
         <p class="text-muted small mt-1">
             وزن (۱ تا ۱۰): اهمیت آیتم را مشخص می‌کند. <br>
-            تأثیر مثبت: افزایش مقدار = افزایش امتیاز &nbsp;|&nbsp; تأثیر منفی: افزایش مقدار = کاهش امتیاز
+            تأثیر مثبت: افزایش مقدار = افزایش امتیاز &nbsp;|&nbsp; تأثیر منفی: افزایش مقدار = کاهش امتیاز <br>
+            <strong>جدید:</strong> هدف، تلورانس، دسته و روش امتیازدهی برای محاسبه دقیق‌تر.
         </p>
     </div>
     <div class="card-body p-0">
@@ -19,8 +20,10 @@
                         <th>آیتم</th>
                         <th>وزن فعلی</th>
                         <th>تأثیر</th>
-                        <th>وزن جدید</th>
-                        <th>تأثیر جدید</th>
+                        <th>هدف</th>
+                        <th>تلورانس</th>
+                        <th>دسته</th>
+                        <th>روش امتیازدهی</th>
                         <th>عملیات</th>
                     </tr>
                 </thead>
@@ -34,27 +37,31 @@
                                 <span class="badge bg-warning bg-opacity-10 text-warning ms-1">KPI</span>
                             {% endif %}
                         </td>
-                        <td>{{ item.weight or 1.0 }}</td>
-                        <td>
-                            <span class="badge bg-{{ 'success' if item.impact_type == 'positive' else 'danger' }}">
-                                {{ 'مثبت' if item.impact_type == 'positive' else 'منفی' }}
-                            </span>
-                        </td>
                         <form method="POST">
                             <input type="hidden" name="item_id" value="{{ item.id }}">
+                            <td><input type="number" name="weight" class="form-control" value="{{ item.weight or 1.0 }}" step="0.1" min="0.1" max="10" style="width:70px;"></td>
                             <td>
-                                <input type="number" name="weight" class="form-control" 
-                                       value="{{ item.weight or 1.0 }}" 
-                                       step="0.1" min="0.1" max="10" style="width:80px;">
+                                <select name="impact_type" class="form-select" style="width:100px;">
+                                    <option value="positive" {% if item.impact_type == 'positive' %}selected{% endif %}>مثبت</option>
+                                    <option value="negative" {% if item.impact_type == 'negative' %}selected{% endif %}>منفی</option>
+                                </select>
+                            </td>
+                            <td><input type="number" name="target_value" class="form-control" value="{{ item.target_value or '' }}" step="any" style="width:80px;" placeholder="هدف"></td>
+                            <td><input type="number" name="tolerance" class="form-control" value="{{ item.tolerance or 10 }}" step="any" style="width:70px;"></td>
+                            <td>
+                                <select name="category" class="form-select" style="width:100px;">
+                                    <option value="general" {% if item.category == 'general' %}selected{% endif %}>عمومی</option>
+                                    <option value="efficiency" {% if item.category == 'efficiency' %}selected{% endif %}>کارایی</option>
+                                    <option value="quality" {% if item.category == 'quality' %}selected{% endif %}>کیفیت</option>
+                                    <option value="time" {% if item.category == 'time' %}selected{% endif %}>زمان</option>
+                                    <option value="cost" {% if item.category == 'cost' %}selected{% endif %}>هزینه</option>
+                                </select>
                             </td>
                             <td>
-                                <select name="impact_type" class="form-select" style="width:120px;">
-                                    <option value="positive" {% if item.impact_type == 'positive' %}selected{% endif %}>
-                                        مثبت
-                                    </option>
-                                    <option value="negative" {% if item.impact_type == 'negative' %}selected{% endif %}>
-                                        منفی
-                                    </option>
+                                <select name="scoring_method" class="form-select" style="width:100px;">
+                                    <option value="linear" {% if item.scoring_method == 'linear' %}selected{% endif %}>خطی</option>
+                                    <option value="sigmoid" {% if item.scoring_method == 'sigmoid' %}selected{% endif %}>سیگموئید</option>
+                                    <option value="step" {% if item.scoring_method == 'step' %}selected{% endif %}>گام</option>
                                 </select>
                             </td>
                             <td>

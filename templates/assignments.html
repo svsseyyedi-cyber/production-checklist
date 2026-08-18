@@ -1,75 +1,360 @@
 {% extends "base.html" %}
 {% block page_title %}تخصیص بخش‌ها به افراد{% endblock %}
 
+{% block styles %}
+<style>
+    .assignment-form-container {
+        background: #f8fafc;
+        border-radius: 16px;
+        padding: 1.5rem;
+        border: 1px solid #eef2f6;
+        margin-bottom: 2rem;
+    }
+    
+    /* ===== بخش انتخاب بخش‌ها (بهبود یافته) ===== */
+    .section-checkbox-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.3rem 1.5rem;
+        max-height: 400px; /* افزایش ارتفاع */
+        overflow-y: auto;
+        padding: 0.5rem 0.5rem 0.5rem 0;
+        border: 1px solid #eef2f6;
+        border-radius: 12px;
+        background: #fff;
+        min-height: 100px;
+    }
+    .section-checkbox-grid .form-check {
+        padding: 0.3rem 0.5rem;
+        margin: 0;
+        border-bottom: 1px solid #f5f7fa;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .section-checkbox-grid .form-check:last-child {
+        border-bottom: none;
+    }
+    .section-checkbox-grid .form-check-input {
+        width: 1.1rem;
+        height: 1.1rem;
+        flex-shrink: 0;
+        margin-top: 0;
+        cursor: pointer;
+        border-radius: 4px;
+        border: 2px solid #cbd5e1;
+        transition: all 0.2s;
+    }
+    .section-checkbox-grid .form-check-input:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+    .section-checkbox-grid .form-check-label {
+        font-size: 0.9rem;
+        color: #1e293b;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1;
+    }
+    .section-checkbox-grid .form-check-label .badge-count {
+        background: #eef2f6;
+        color: #64748b;
+        font-size: 0.65rem;
+        padding: 0.1rem 0.6rem;
+        border-radius: 30px;
+        font-weight: 600;
+        margin-right: auto;
+    }
+    .section-checkbox-grid .form-check:hover {
+        background: #f8fafc;
+        border-radius: 6px;
+    }
+    
+    /* اسکرول بار زیبا */
+    .section-checkbox-grid::-webkit-scrollbar {
+        width: 6px;
+    }
+    .section-checkbox-grid::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 10px;
+    }
+    .section-checkbox-grid::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+    .section-checkbox-grid::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+
+    /* ===== جستجوی بخش‌ها ===== */
+    .section-search-box {
+        position: relative;
+        margin-bottom: 0.8rem;
+    }
+    .section-search-box input {
+        width: 100%;
+        padding: 0.6rem 1rem 0.6rem 2.8rem;
+        border-radius: 30px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+        height: 42px;
+    }
+    .section-search-box input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        outline: none;
+    }
+    .section-search-box i {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+    }
+
+    /* ===== دکمه‌های انتخاب ===== */
+    .btn-select-all {
+        border-radius: 30px;
+        padding: 0.3rem 1.2rem;
+        font-size: 0.8rem;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+        color: #475569;
+        transition: all 0.2s;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .btn-select-all:hover {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+    }
+    .btn-select-all.primary:hover {
+        background: #eff6ff;
+        border-color: #3b82f6;
+        color: #1e4f8a;
+    }
+
+    /* ===== وضعیت خالی ===== */
+    .empty-sections {
+        text-align: center;
+        padding: 1.5rem;
+        color: #94a3b8;
+    }
+    .empty-sections i {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 0.5rem;
+        opacity: 0.4;
+    }
+
+    /* ===== جدول انتسابات ===== */
+    .table-assignments {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        font-size: 0.9rem;
+    }
+    .table-assignments thead th {
+        background: #f8fafc;
+        color: #475569;
+        font-weight: 600;
+        padding: 0.7rem 1rem;
+        border-bottom: 2px solid #eef2f6;
+        white-space: nowrap;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    .table-assignments tbody td {
+        padding: 0.6rem 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+    .table-assignments tbody tr:last-child td {
+        border-bottom: none;
+    }
+    .table-assignments tbody tr:hover {
+        background: #fafbfc;
+    }
+
+    .badge-assigned {
+        background: #eff6ff;
+        color: #1e4f8a;
+        padding: 0.2rem 0.7rem;
+        border-radius: 30px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        display: inline-block;
+        margin: 0.1rem 0.2rem;
+        white-space: nowrap;
+    }
+
+    /* ===== واکنش‌گرایی ===== */
+    @media (max-width: 768px) {
+        .section-checkbox-grid {
+            grid-template-columns: 1fr;
+            max-height: 300px;
+        }
+        .assignment-form-container {
+            padding: 1rem;
+        }
+        .table-assignments {
+            font-size: 0.75rem;
+        }
+        .table-assignments thead th,
+        .table-assignments tbody td {
+            padding: 0.4rem 0.6rem;
+        }
+        .badge-assigned {
+            font-size: 0.6rem;
+            padding: 0.1rem 0.5rem;
+        }
+        .btn-select-all {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+
+<!-- ===== فرم تخصیص ===== -->
 <div class="card shadow-sm border-0 rounded-4">
     <div class="card-header bg-transparent border-0">
         <h5 class="mb-0"><i class="fas fa-tasks text-primary me-2"></i>انتساب بخش‌ها به اپراتورها و مسئولین</h5>
         <p class="text-muted small">بخش‌های مرتبط با هر شخص را انتخاب کنید تا عملکرد بر اساس آن‌ها محاسبه شود.</p>
+        <span class="badge bg-light text-dark mt-1">{{ sections|length }} بخش موجود</span>
     </div>
     <div class="card-body">
-        <form method="POST">
+        <form method="POST" id="assignmentForm">
             <div class="row g-4">
+                <!-- سمت راست: انتخاب شخص -->
                 <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label">نوع شخص</label>
-                        <select name="person_type" class="form-select" id="personType">
-                            <option value="operator">اپراتور</option>
-                            <option value="supervisor">مسئول</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">شخص</label>
-                        <select name="person_id" class="form-select" id="personSelect">
-                            <optgroup label="اپراتورها">
-                                {% for op in operators %}
-                                <option value="{{ op.id }}" data-type="operator">{{ op.name }} ({{ op.code }})</option>
-                                {% endfor %}
-                            </optgroup>
-                            <optgroup label="مسئولین">
-                                {% for sup in supervisors %}
-                                <option value="{{ sup.id }}" data-type="supervisor">{{ sup.name }} ({{ sup.code }})</option>
-                                {% endfor %}
-                            </optgroup>
-                        </select>
+                    <div class="assignment-form-container">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-user-tag text-primary"></i> نوع شخص
+                            </label>
+                            <select name="person_type" class="form-select rounded-4" id="personType">
+                                <option value="operator">👷 اپراتور</option>
+                                <option value="supervisor">👔 مسئول</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-user text-primary"></i> شخص
+                            </label>
+                            <select name="person_id" class="form-select rounded-4" id="personSelect" required>
+                                <optgroup label="اپراتورها">
+                                    {% for op in operators %}
+                                    <option value="{{ op.id }}" data-type="operator">{{ op.name }} ({{ op.code }})</option>
+                                    {% endfor %}
+                                </optgroup>
+                                <optgroup label="مسئولین">
+                                    {% for sup in supervisors %}
+                                    <option value="{{ sup.id }}" data-type="supervisor">{{ sup.name }} ({{ sup.code }})</option>
+                                    {% endfor %}
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="text-muted small">
+                            <i class="fas fa-info-circle"></i>
+                            پس از انتخاب شخص، بخش‌های مرتبط با او را انتخاب کنید.
+                        </div>
                     </div>
                 </div>
+
+                <!-- سمت چپ: انتخاب بخش‌ها -->
                 <div class="col-md-6">
-                    <label class="form-label">بخش‌های مرتبط</label>
-                    <div class="border rounded-4 p-3" style="max-height:300px; overflow-y:auto;">
-                        {% for section in sections %}
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" name="section_ids" value="{{ section.id }}" id="sec_{{ section.id }}">
-                            <label class="form-check-label" for="sec_{{ section.id }}">
-                                {{ section.name }}
-                                <span class="badge bg-light text-dark">{{ section.items|length }} آیتم</span>
-                            </label>
+                    <div class="assignment-form-container">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-layer-group text-primary"></i> بخش‌های مرتبط
+                            <span class="text-muted small" id="selectedCount">(۰ انتخاب شده)</span>
+                        </label>
+                        
+                        <!-- جستجوی بخش‌ها -->
+                        <div class="section-search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="sectionSearch" placeholder="جستجوی بخش..." class="form-control">
                         </div>
-                        {% endfor %}
+
+                        <!-- لیست چک‌باکس‌ها -->
+                        <div class="section-checkbox-grid" id="sectionCheckboxGrid">
+                            {% if sections %}
+                                {% for section in sections %}
+                                <div class="form-check section-item" data-name="{{ section.name|lower }}">
+                                    <input type="checkbox" class="form-check-input" name="section_ids" 
+                                           value="{{ section.id }}" id="sec_{{ section.id }}">
+                                    <label class="form-check-label" for="sec_{{ section.id }}">
+                                        {{ section.name }}
+                                        <span class="badge-count">{{ section.items|length }} آیتم</span>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="empty-sections">
+                                    <i class="fas fa-folder-open"></i>
+                                    <span>هیچ بخشی در سیستم ثبت نشده است.</span>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- دکمه‌های انتخاب -->
+                        <div class="mt-2 d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn-select-all primary" onclick="selectAllSections(true)">
+                                <i class="fas fa-check-double"></i> انتخاب همه
+                            </button>
+                            <button type="button" class="btn-select-all" onclick="selectAllSections(false)">
+                                <i class="fas fa-times"></i> لغو همه
+                            </button>
+                            <button type="button" class="btn-select-all" onclick="invertSelection()">
+                                <i class="fas fa-exchange-alt"></i> معکوس
+                            </button>
+                            <span class="text-muted small align-self-center ms-auto" id="sectionCount">
+                                {{ sections|length }} بخش
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="mt-3">
+
+            <div class="mt-3 d-flex gap-2">
                 <button type="submit" class="btn btn-primary-custom">
                     <i class="fas fa-save"></i> ذخیره انتسابات
+                </button>
+                <button type="reset" class="btn btn-outline-secondary">
+                    <i class="fas fa-undo"></i> بازنشانی
                 </button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- نمایش انتسابات فعلی -->
+<!-- ===== نمایش انتسابات فعلی ===== -->
 <div class="card shadow-sm border-0 rounded-4 mt-4">
-    <div class="card-header bg-transparent border-0">
-        <h5 class="mb-0"><i class="fas fa-list-check text-primary me-2"></i>وضعیت انتسابات فعلی</h5>
+    <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="mb-0"><i class="fas fa-list-check text-primary me-2"></i>وضعیت انتسابات فعلی</h5>
+            <span class="text-muted small">بخش‌های اختصاص‌یافته به هر شخص</span>
+        </div>
+        <span class="badge bg-light text-dark">{{ operators|length + supervisors|length }} نفر</span>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
+            <table class="table-assignments">
+                <thead>
                     <tr>
                         <th>نوع</th>
                         <th>نام</th>
+                        <th>کد</th>
+                        <th>مسئول</th>
                         <th>بخش‌های اختصاص‌یافته</th>
                         <th>تعداد</th>
                     </tr>
@@ -78,40 +363,88 @@
                     {% for op in operators %}
                     <tr>
                         <td><span class="badge bg-primary">اپراتور</span></td>
-                        <td>{{ op.name }}</td>
+                        <td class="fw-semibold">{{ op.name }}</td>
+                        <td>{{ op.code }}</td>
+                        <td>
+                            {% if op.supervisor %}
+                                <span class="badge bg-success">{{ op.supervisor.name }}</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
                         <td>
                             {% for sec_id in assignments.get('operator_' + op.id|string, []) %}
                                 {% set section = sections|selectattr('id', 'equalto', sec_id)|first %}
-                                <span class="badge bg-light text-dark">{{ section.name }}</span>
+                                <span class="badge-assigned">{{ section.name if section else 'نامشخص' }}</span>
                             {% endfor %}
                         </td>
-                        <td>{{ assignments.get('operator_' + op.id|string, [])|length }}</td>
+                        <td class="fw-bold">{{ assignments.get('operator_' + op.id|string, [])|length }}</td>
                     </tr>
                     {% endfor %}
+                    
                     {% for sup in supervisors %}
                     <tr>
                         <td><span class="badge bg-success">مسئول</span></td>
-                        <td>{{ sup.name }}</td>
+                        <td class="fw-semibold">{{ sup.name }}</td>
+                        <td>{{ sup.code }}</td>
+                        <td><span class="text-muted">—</span></td>
                         <td>
                             {% for sec_id in assignments.get('supervisor_' + sup.id|string, []) %}
                                 {% set section = sections|selectattr('id', 'equalto', sec_id)|first %}
-                                <span class="badge bg-light text-dark">{{ section.name }}</span>
+                                <span class="badge-assigned">{{ section.name if section else 'نامشخص' }}</span>
                             {% endfor %}
                         </td>
-                        <td>{{ assignments.get('supervisor_' + sup.id|string, [])|length }}</td>
+                        <td class="fw-bold">{{ assignments.get('supervisor_' + sup.id|string, [])|length }}</td>
                     </tr>
                     {% endfor %}
+                    
+                    {% if not operators and not supervisors %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="fas fa-users-slash fa-2x d-block mb-2"></i>
+                            هیچ اپراتور یا مسئولی ثبت نشده است.
+                        </td>
+                    </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
+<!-- ===== راهنما ===== -->
+<div class="mt-4 p-3 bg-light rounded-4 border border-1 border-light">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary">اپراتور</span>
+                <span class="text-muted small">بخش‌های تخصیص‌یافته به اپراتور، در فرم ثبت داده برای او نمایش داده می‌شود.</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-success">مسئول</span>
+                <span class="text-muted small">امتیاز مسئول شامل میانگین امتیاز اپراتورهای زیردست نیز می‌شود.</span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-link text-primary"></i>
+                <span class="text-muted small">هر شخص می‌تواند به چندین بخش تخصیص داده شود.</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
 <script>
 $(function(){
-    $('#personType').on('change', function(){
+    // ===== فیلتر کردن لیست افراد بر اساس نوع =====
+    $('#personType').on('change', function() {
         const type = $(this).val();
-        $('#personSelect option').each(function(){
+        $('#personSelect option').each(function() {
             const optType = $(this).data('type');
             if (optType === type || optType === undefined) {
                 $(this).show();
@@ -122,7 +455,86 @@ $(function(){
         if ($('#personSelect option:selected').is(':hidden')) {
             $('#personSelect option:visible').first().prop('selected', true);
         }
-    }).trigger('change');
+        loadSectionCheckboxes();
+    });
+
+    // ===== بارگذاری چک‌باکس‌ها بر اساس شخص انتخاب‌شده =====
+    function loadSectionCheckboxes() {
+        const personId = $('#personSelect').val();
+        const personType = $('#personType').val();
+        const key = personType + '_' + personId;
+        
+        const assignments = {{ assignments|tojson|safe }};
+        const assignedSections = assignments[key] || [];
+        
+        $('input[name="section_ids"]').each(function() {
+            $(this).prop('checked', assignedSections.includes(parseInt($(this).val())));
+        });
+        updateSelectedCount();
+    }
+
+    // ===== به‌روزرسانی تعداد انتخاب‌ها =====
+    function updateSelectedCount() {
+        const count = $('input[name="section_ids"]:checked').length;
+        const total = $('input[name="section_ids"]').length;
+        $('#selectedCount').text('(' + count + ' از ' + total + ' انتخاب شده)');
+    }
+
+    // ===== انتخاب همه / هیچ‌کدام =====
+    window.selectAllSections = function(selectAll) {
+        $('input[name="section_ids"]:visible').prop('checked', selectAll);
+        updateSelectedCount();
+    };
+
+    // ===== معکوس کردن انتخاب‌ها =====
+    window.invertSelection = function() {
+        $('input[name="section_ids"]:visible').each(function() {
+            $(this).prop('checked', !$(this).prop('checked'));
+        });
+        updateSelectedCount();
+    };
+
+    // ===== جستجوی بخش‌ها =====
+    $('#sectionSearch').on('keyup', function() {
+        const query = $(this).val().toLowerCase().trim();
+        if (query === '') {
+            $('.section-item').show();
+            return;
+        }
+        $('.section-item').each(function() {
+            const name = $(this).data('name');
+            if (name.includes(query)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+
+    // ===== بارگذاری اولیه =====
+    $('#personType').trigger('change');
+
+    // ===== هنگام تغییر شخص، چک‌باکس‌ها را به‌روز کن =====
+    $('#personSelect').on('change', function() {
+        loadSectionCheckboxes();
+    });
+
+    // ===== به‌روزرسانی تعداد انتخاب‌ها با تغییر هر چک‌باکس =====
+    $(document).on('change', 'input[name="section_ids"]', function() {
+        updateSelectedCount();
+    });
+
+    // ===== تأیید قبل از ارسال =====
+    $('#assignmentForm').on('submit', function(e) {
+        const checked = $('input[name="section_ids"]:checked').length;
+        if (checked === 0) {
+            if (!confirm('هیچ بخشی انتخاب نشده است. این به معنای حذف تمام انتسابات شخص است. ادامه دهید؟')) {
+                e.preventDefault();
+                return false;
+            }
+        }
+        return true;
+    });
 });
 </script>
 {% endblock %}

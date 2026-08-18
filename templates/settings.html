@@ -1,110 +1,1113 @@
 {% extends "base.html" %}
 {% block page_title %}تنظیمات سیستم{% endblock %}
+
+{% block styles %}
+<style>
+    .settings-header {
+        background: linear-gradient(135deg, #0f2b5e, #1a4a8a);
+        border-radius: 16px;
+        padding: 1.8rem 2rem;
+        color: #fff;
+        margin-bottom: 2rem;
+    }
+    .settings-header h3 {
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+    .settings-header h3 i {
+        font-size: 1.8rem;
+        opacity: 0.9;
+    }
+    .settings-header p {
+        margin: 0.3rem 0 0;
+        opacity: 0.8;
+        font-size: 0.95rem;
+    }
+    .settings-header .badge-version {
+        background: rgba(255,255,255,0.15);
+        padding: 0.2rem 1rem;
+        border-radius: 30px;
+        font-size: 0.75rem;
+        display: inline-block;
+        margin-top: 0.5rem;
+    }
+    .settings-header .btn-tag-auto {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: #fff;
+        border-radius: 30px;
+        padding: 0.4rem 1.2rem;
+        transition: all 0.3s;
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .settings-header .btn-tag-auto:hover {
+        background: rgba(255,255,255,0.25);
+        color: #fff;
+    }
+
+    /* تب‌ها */
+    .settings-tabs {
+        display: flex;
+        gap: 0.3rem;
+        margin-bottom: 1.8rem;
+        flex-wrap: wrap;
+        border-bottom: 2px solid #eef2f6;
+        padding-bottom: 0.5rem;
+    }
+    .settings-tabs .tab-btn {
+        padding: 0.5rem 1.2rem;
+        border: none;
+        border-radius: 10px 10px 0 0;
+        background: transparent;
+        font-weight: 600;
+        color: #64748b;
+        transition: all 0.2s;
+        cursor: pointer;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .settings-tabs .tab-btn:hover {
+        background: #f1f5f9;
+        color: #0f2b5e;
+    }
+    .settings-tabs .tab-btn.active {
+        background: #fff;
+        color: #0f2b5e;
+        border-bottom: 3px solid #3b82f6;
+    }
+    .settings-tabs .tab-btn i {
+        font-size: 1rem;
+    }
+
+    .tab-panel {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+    .tab-panel.active {
+        display: block;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* کارت‌های آماری */
+    .stat-card-mini {
+        background: #fff;
+        border-radius: 16px;
+        padding: 1.2rem;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border: 1px solid #f1f5f9;
+        transition: all 0.2s;
+    }
+    .stat-card-mini:hover {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        transform: translateY(-2px);
+    }
+    .stat-card-mini .icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        color: #fff;
+        flex-shrink: 0;
+    }
+    .stat-card-mini .icon-blue { background: #3b82f6; }
+    .stat-card-mini .icon-green { background: #10b981; }
+    .stat-card-mini .icon-yellow { background: #f59e0b; }
+    .stat-card-mini .icon-purple { background: #8b5cf6; }
+    .stat-card-mini .number { font-size: 1.6rem; font-weight: 700; color: #0f2b5e; line-height: 1.2; }
+    .stat-card-mini .label { font-size: 0.8rem; color: #64748b; }
+
+    /* جستجو و فیلتر */
+    .toolbar-settings {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        border: 1px solid #eef2f6;
+    }
+    .toolbar-settings .search-box {
+        flex: 1;
+        position: relative;
+        min-width: 180px;
+    }
+    .toolbar-settings .search-box input {
+        padding-right: 2.5rem;
+        border-radius: 30px;
+        border: 1px solid #e2e8f0;
+        height: 40px;
+        width: 100%;
+        padding: 0 1rem 0 2.5rem;
+        transition: all 0.2s;
+        background: #fff;
+    }
+    .toolbar-settings .search-box input:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        outline: none;
+    }
+    .toolbar-settings .search-box i {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+    }
+    .toolbar-settings .filter-select {
+        min-width: 150px;
+    }
+    .toolbar-settings .filter-select select {
+        border-radius: 30px;
+        border: 1px solid #e2e8f0;
+        height: 40px;
+        padding: 0 1rem;
+        background: #fff;
+        cursor: pointer;
+        width: 100%;
+        transition: all 0.2s;
+    }
+    .toolbar-settings .filter-select select:focus {
+        border-color: #3b82f6;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    }
+
+    /* جدول */
+    .table-settings {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        font-size: 0.9rem;
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .table-settings thead th {
+        background: #f8fafc;
+        color: #475569;
+        font-weight: 600;
+        padding: 0.7rem 1rem;
+        border-bottom: 2px solid #eef2f6;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+    }
+    .table-settings tbody td {
+        padding: 0.6rem 1rem;
+        border-bottom: 1px solid #f1f5f9;
+        vertical-align: middle;
+    }
+    .table-settings tbody tr:last-child td {
+        border-bottom: none;
+    }
+    .table-settings tbody tr:hover {
+        background: #fafbfc;
+    }
+
+    /* بج‌های نرم */
+    .badge-soft-primary { background: #eff6ff; color: #1e4f8a; padding: 0.2rem 0.8rem; border-radius: 30px; font-weight: 500; }
+    .badge-soft-success { background: #ecfdf5; color: #065f46; padding: 0.2rem 0.8rem; border-radius: 30px; font-weight: 500; }
+    .badge-soft-warning { background: #fef3c7; color: #b45309; padding: 0.2rem 0.8rem; border-radius: 30px; font-weight: 500; }
+    .badge-soft-danger { background: #fee2e2; color: #991b1b; padding: 0.2rem 0.8rem; border-radius: 30px; font-weight: 500; }
+    .badge-soft-secondary { background: #f1f5f9; color: #475569; padding: 0.2rem 0.8rem; border-radius: 30px; font-weight: 500; }
+    .badge-soft-info { background: #ecfdf5; color: #0d9488; padding: 0.2rem 0.8rem; border-radius: 30px; font-weight: 500; }
+
+    /* دکمه‌ها */
+    .btn-settings {
+        border: none;
+        border-radius: 30px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+    }
+    .btn-settings-primary {
+        background: linear-gradient(135deg, #0f2b5e, #3b82f6);
+        color: #fff;
+    }
+    .btn-settings-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(59,130,246,0.3); color: #fff; }
+    .btn-settings-danger {
+        background: linear-gradient(135deg, #dc2626, #ef4444);
+        color: #fff;
+    }
+    .btn-settings-danger:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(220,38,38,0.3); color: #fff; }
+    .btn-settings-success {
+        background: linear-gradient(135deg, #059669, #10b981);
+        color: #fff;
+    }
+    .btn-settings-success:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(5,150,105,0.3); color: #fff; }
+    .btn-settings-outline {
+        background: transparent;
+        border: 2px solid #e2e8f0;
+        color: #475569;
+    }
+    .btn-settings-outline:hover { background: #f1f5f9; }
+
+    /* استایل‌های تگ‌ها */
+    .tag-select-container {
+        max-height: 120px;
+        overflow-y: auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.5rem;
+        background: #fff;
+    }
+    .tag-select-container .form-check {
+        padding: 0.2rem 0.5rem;
+        margin: 0;
+        border-bottom: 1px dashed #f1f5f9;
+    }
+    .tag-select-container .form-check:last-child {
+        border-bottom: none;
+    }
+    .tag-select-container .form-check-input:checked {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+    .tag-select-container::-webkit-scrollbar {
+        width: 4px;
+    }
+    .tag-select-container::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    /* بج تگ در جدول */
+    .badge-tag {
+        background: #eef2ff;
+        color: #3730a3;
+        padding: 0.1rem 0.6rem;
+        border-radius: 30px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        display: inline-block;
+        margin: 0.1rem 0.2rem;
+    }
+    .btn-edit-item {
+        border-radius: 30px;
+        padding: 0.2rem 0.7rem;
+        font-size: 0.75rem;
+    }
+    .btn-edit-item:hover {
+        transform: scale(1.05);
+    }
+
+    /* مودال ویرایش */
+    .modal-content {
+        border: none;
+        border-radius: 20px;
+    }
+    .modal-header {
+        border-bottom: 2px solid #f1f5f9;
+        padding: 1.2rem 1.8rem;
+    }
+    .modal-footer {
+        border-top: 2px solid #f1f5f9;
+        padding: 1.2rem 1.8rem;
+    }
+    .modal-body {
+        padding: 1.8rem;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    .modal-body::-webkit-scrollbar {
+        width: 4px;
+    }
+    .modal-body::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+
+    @media (max-width: 768px) {
+        .settings-header { padding: 1.2rem; }
+        .settings-header h3 { font-size: 1.2rem; }
+        .settings-tabs .tab-btn { padding: 0.3rem 0.8rem; font-size: 0.8rem; }
+        .settings-tabs .tab-btn span { display: none; }
+        .settings-tabs .tab-btn i { font-size: 1.2rem; }
+        .stat-card-mini { padding: 0.8rem; }
+        .stat-card-mini .number { font-size: 1.2rem; }
+        .toolbar-settings { flex-direction: column; }
+        .toolbar-settings .search-box { min-width: 100%; }
+        .toolbar-settings .filter-select { min-width: 100%; }
+        .table-settings { font-size: 0.75rem; }
+        .table-settings thead th,
+        .table-settings tbody td { padding: 0.4rem 0.6rem; }
+        .table-settings thead th { font-size: 0.65rem; }
+        .tag-select-container { max-height: 80px; }
+        .modal-body { padding: 1.2rem; }
+        .modal-header, .modal-footer { padding: 1rem 1.2rem; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="row">
-    <div class="col-md-6">
-        <div class="card card-primary">
-            <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-plus-circle"></i> افزودن بخش جدید</h3>
-            </div>
-            <div class="card-body">
-                <form method="POST">
-                    <input type="hidden" name="action" value="add_section">
-                    <div class="mb-3">
-                        <input type="text" name="name" class="form-control" placeholder="نام بخش" required>
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" name="description" class="form-control" placeholder="توضیحات">
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" name="icon" class="form-control" placeholder="آیکون (مثل fa-flask)">
-                    </div>
-                    <button type="submit" class="btn btn-primary">افزودن بخش</button>
-                </form>
+
+<!-- ===== هدر ===== -->
+<div class="settings-header">
+    <div class="d-flex flex-wrap align-items-center justify-content-between">
+        <div>
+            <h3><i class="fas fa-sliders-h"></i> تنظیمات سیستم</h3>
+            <p>مدیریت بخش‌ها، آیتم‌ها و تنظیمات چک‌لیست</p>
+            <span class="badge-version">
+                <i class="fas fa-code-branch me-1"></i> {{ sections|length }} بخش &bull; {{ items|length }} آیتم
+            </span>
+        </div>
+<div class="d-flex gap-2 mt-2 mt-md-0 flex-wrap">
+    <button id="autoTagBtn" class="btn-tag-auto" onclick="autoTagItems()">
+        <i class="fas fa-tags"></i> تگ‌گذاری خودکار
+    </button>
+    <span id="tagStatus" class="text-muted small align-self-center"></span>
+    <a href="{{ url_for('item_weights') }}" class="btn btn-outline-light rounded-pill">
+        <i class="fas fa-weight-scale"></i> مدیریت وزن
+    </a>
+</div>
+    </div>
+</div>
+
+<!-- ===== کارت‌های آماری ===== -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="stat-card-mini">
+            <div class="icon icon-blue"><i class="fas fa-layer-group"></i></div>
+            <div class="info">
+                <div class="number">{{ sections|length }}</div>
+                <div class="label">بخش‌ها</div>
             </div>
         </div>
-        <div class="card card-success">
-            <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-plus-circle"></i> افزودن آیتم به بخش</h3>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-card-mini">
+            <div class="icon icon-green"><i class="fas fa-list-check"></i></div>
+            <div class="info">
+                <div class="number">{{ items|length }}</div>
+                <div class="label">آیتم‌ها</div>
             </div>
-            <div class="card-body">
-                <form method="POST">
-                    <input type="hidden" name="action" value="add_item">
-                    <div class="mb-3">
-                        <select name="section_id" class="form-select" required>
-                            <option value="">انتخاب بخش</option>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-card-mini">
+            <div class="icon icon-yellow"><i class="fas fa-star"></i></div>
+            <div class="info">
+                <div class="number">{{ items|selectattr('is_kpi', 'equalto', True)|list|length }}</div>
+                <div class="label">شاخص‌های KPI</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-card-mini">
+            <div class="icon icon-purple"><i class="fas fa-cubes"></i></div>
+            <div class="info">
+                <div class="number">{{ total_items }}</div>
+                <div class="label">مجموع آیتم‌ها</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== تب‌ها ===== -->
+<div class="settings-tabs" id="settingsTabs">
+    <button class="tab-btn active" data-tab="tab-add-section">
+        <i class="fas fa-folder-plus"></i> <span>بخش جدید</span>
+    </button>
+    <button class="tab-btn" data-tab="tab-add-item">
+        <i class="fas fa-plus-circle"></i> <span>آیتم جدید</span>
+    </button>
+    <button class="tab-btn" data-tab="tab-delete">
+        <i class="fas fa-trash-alt"></i> <span>حذف</span>
+    </button>
+    <button class="tab-btn" data-tab="tab-list">
+        <i class="fas fa-list"></i> <span>لیست آیتم‌ها</span>
+    </button>
+</div>
+
+<!-- ===== تب ۱: افزودن بخش ===== -->
+<div class="tab-panel active" id="tab-add-section">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-transparent border-0">
+            <i class="fas fa-folder-plus text-primary me-2"></i> افزودن بخش جدید
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <input type="hidden" name="action" value="add_section">
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label class="form-label fw-semibold">نام بخش <span class="text-danger">*</span></label>
+                        <input type="text" name="name" class="form-control rounded-4" placeholder="مثلاً: دستگاه پرکن" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">توضیحات</label>
+                        <input type="text" name="description" class="form-control rounded-4" placeholder="توضیح مختصر">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">آیکون</label>
+                        <input type="text" name="icon" class="form-control rounded-4" placeholder="مثلاً: fa-fill-drip">
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-settings btn-settings-success">
+                            <i class="fas fa-save"></i> افزودن بخش
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ===== تب ۲: افزودن آیتم ===== -->
+<div class="tab-panel" id="tab-add-item">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-transparent border-0">
+            <i class="fas fa-plus-circle text-primary me-2"></i> افزودن آیتم جدید
+            <span class="badge bg-light text-dark ms-2">با قابلیت تگ‌گذاری برای گزارشات پویا</span>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                <input type="hidden" name="action" value="add_item">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">بخش <span class="text-danger">*</span></label>
+                        <select name="section_id" class="form-select rounded-4" required>
+                            <option value="">انتخاب بخش...</option>
                             {% for sec in sections %}
                             <option value="{{ sec.id }}">{{ sec.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <input type="text" name="title" class="form-control" placeholder="عنوان آیتم" required>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">عنوان آیتم <span class="text-danger">*</span></label>
+                        <input type="text" name="title" class="form-control rounded-4" placeholder="عنوان" required>
                     </div>
-                    <div class="mb-3">
-                        <select name="field_type" class="form-select">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">نوع فیلد</label>
+                        <select name="field_type" class="form-select rounded-4">
                             <option value="text">متن</option>
                             <option value="number">عدد</option>
                             <option value="checkbox">چک‌باکس</option>
                             <option value="select">انتخاب</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <input type="text" name="unit" class="form-control" placeholder="واحد (مثلاً دقیقه، درصد)">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">واحد</label>
+                        <input type="text" name="unit" class="form-control rounded-4" placeholder="مثلاً: دقیقه">
                     </div>
-                    <div class="mb-3">
-                        <input type="text" name="default_value" class="form-control" placeholder="مقدار پیش‌فرض">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">مقدار پیش‌فرض</label>
+                        <input type="text" name="default_value" class="form-control rounded-4" placeholder="مقدار">
                     </div>
-                    <div class="mb-3">
-                        <input type="text" name="options" class="form-control" placeholder="گزینه‌ها (برای select، با کاما جدا)">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">گزینه‌ها (برای select)</label>
+                        <input type="text" name="options" class="form-control rounded-4" placeholder="با کاما جدا کنید">
                     </div>
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" name="is_kpi" class="form-check-input" value="1">
-                        <label class="form-check-label">آیتم کلیدی (KPI)</label>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <div class="form-check">
+                            <input type="checkbox" name="is_kpi" class="form-check-input" value="1" id="isKpi">
+                            <label class="form-check-label fw-semibold" for="isKpi">
+                                <i class="fas fa-star text-warning"></i> آیتم KPI
+                            </label>
+                        </div>
                     </div>
-                    <button type="submit" class="btn btn-success">افزودن آیتم</button>
-                </form>
-            </div>
+
+                    <!-- ===== بخش انتخاب تگ‌ها ===== -->
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">
+                            <i class="fas fa-tags text-primary"></i> تگ‌ها
+                            <span class="text-muted small">(برای گزارشات پویا و داشبورد)</span>
+                        </label>
+                        <div class="tag-select-container">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="tags" value="production_actual" id="tag_production_actual">
+                                <label class="form-check-label" for="tag_production_actual">تولید واقعی</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="tags" value="production_plan" id="tag_production_plan">
+                                <label class="form-check-label" for="tag_production_plan">تولید برنامه</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="tags" value="efficiency" id="tag_efficiency">
+                                <label class="form-check-label" for="tag_efficiency">راندمان</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="tags" value="oee" id="tag_oee">
+                                <label class="form-check-label" for="tag_oee">اثربخشی کلی (OEE)</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="tags" value="stop_total" id="tag_stop_total">
+                                <label class="form-check-label" for="tag_stop_total">مجموع توقف</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="tags" value="waste_total" id="tag_waste_total">
+                                <label class="form-check-label" for="tag_waste_total">کل ضایعات</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="tags" value="bottleneck" id="tag_bottleneck">
+                                <label class="form-check-label" for="tag_bottleneck">گلوگاه خط</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="tags" value="line_balance" id="tag_line_balance">
+                                <label class="form-check-label" for="tag_line_balance">هماهنگی خط</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="tags" value="quality" id="tag_quality">
+                                <label class="form-check-label" for="tag_quality">کیفیت</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="tags" value="performance" id="tag_performance">
+                                <label class="form-check-label" for="tag_performance">عملکرد</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="tags" value="general" id="tag_general">
+                                <label class="form-check-label" for="tag_general">عمومی</label>
+                            </div>
+                        </div>
+                        <small class="text-muted">حداقل یک تگ انتخاب کنید تا آیتم در گزارشات نمایش داده شود.</small>
+                    </div>
+
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-settings btn-settings-success">
+                            <i class="fas fa-save"></i> افزودن آیتم
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <div class="col-md-6">
-        <div class="card card-danger">
-            <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-trash-alt"></i> حذف آیتم</h3>
-            </div>
-            <div class="card-body">
-                <form method="POST" onsubmit="return confirm('آیا مطمئنید؟')">
-                    <input type="hidden" name="action" value="delete_item">
-                    <div class="mb-3">
-                        <select name="item_id" class="form-select">
-                            {% for item in items %}
-                            <option value="{{ item.id }}">{{ item.section.name }} - {{ item.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-danger">حذف آیتم</button>
-                </form>
+<!-- ===== تب ۳: حذف ===== -->
+<div class="tab-panel" id="tab-delete">
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-transparent border-0 text-danger">
+                    <i class="fas fa-trash-alt me-2"></i> حذف آیتم
+                </div>
+                <div class="card-body">
+                    <form method="POST" onsubmit="return confirm('آیا از حذف این آیتم مطمئنید؟')">
+                        <input type="hidden" name="action" value="delete_item">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">انتخاب آیتم</label>
+                            <select name="item_id" class="form-select rounded-4">
+                                {% for item in items %}
+                                <option value="{{ item.id }}">{{ item.section.name }} - {{ item.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-settings btn-settings-danger">
+                            <i class="fas fa-trash"></i> حذف آیتم
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
-        <div class="card card-danger">
-            <div class="card-header">
-                <h3 class="card-title"><i class="fas fa-trash-alt"></i> حذف بخش (همراه با آیتم‌ها)</h3>
-            </div>
-            <div class="card-body">
-                <form method="POST" onsubmit="return confirm('با حذف بخش، تمام آیتم‌های آن نیز حذف می‌شوند. ادامه؟')">
-                    <input type="hidden" name="action" value="delete_section">
-                    <div class="mb-3">
-                        <select name="section_id" class="form-select">
-                            {% for sec in sections %}
-                            <option value="{{ sec.id }}">{{ sec.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-danger">حذف بخش</button>
-                </form>
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header bg-transparent border-0 text-danger">
+                    <i class="fas fa-folder-minus me-2"></i> حذف بخش
+                </div>
+                <div class="card-body">
+                    <form method="POST" onsubmit="return confirm('با حذف بخش، تمام آیتم‌های آن نیز حذف می‌شوند. ادامه؟')">
+                        <input type="hidden" name="action" value="delete_section">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">انتخاب بخش</label>
+                            <select name="section_id" class="form-select rounded-4">
+                                {% for sec in sections %}
+                                <option value="{{ sec.id }}">{{ sec.name }} ({{ sec.items|length }} آیتم)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-settings btn-settings-danger">
+                            <i class="fas fa-trash"></i> حذف بخش
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- ===== تب ۴: لیست آیتم‌ها (با ویرایش) ===== -->
+<div class="tab-panel" id="tab-list">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-transparent border-0">
+            <i class="fas fa-list text-primary me-2"></i> لیست کامل آیتم‌ها
+            <span class="badge bg-light text-dark ms-2">{{ items|length }} آیتم</span>
+        </div>
+        <div class="card-body">
+            <!-- نوار ابزار -->
+            <div class="toolbar-settings">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchItems" placeholder="جستجو..." class="form-control">
+                </div>
+                <div class="filter-select">
+                    <select id="filterSection" class="form-select">
+                        <option value="all">همه بخش‌ها</option>
+                        {% for sec in sections %}
+                        <option value="{{ sec.id }}">{{ sec.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-select">
+                    <select id="filterKpi" class="form-select">
+                        <option value="all">همه</option>
+                        <option value="kpi">فقط KPI</option>
+                        <option value="nonkpi">غیر KPI</option>
+                    </select>
+                </div>
+                <div class="filter-select">
+                    <select id="filterTag" class="form-select">
+                        <option value="all">همه تگ‌ها</option>
+                        <option value="production_actual">تولید واقعی</option>
+                        <option value="production_plan">تولید برنامه</option>
+                        <option value="efficiency">راندمان</option>
+                        <option value="oee">OEE</option>
+                        <option value="stop_total">مجموع توقف</option>
+                        <option value="waste_total">کل ضایعات</option>
+                        <option value="bottleneck">گلوگاه</option>
+                        <option value="line_balance">هماهنگی خط</option>
+                        <option value="quality">کیفیت</option>
+                        <option value="performance">عملکرد</option>
+                        <option value="general">عمومی</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- جدول -->
+            <div class="table-responsive">
+                <table class="table-settings" id="itemsTable">
+                    <thead>
+                        <tr>
+                            <th>بخش</th>
+                            <th>عنوان</th>
+                            <th>نوع</th>
+                            <th>واحد</th>
+                            <th>KPI</th>
+                            <th>هدف</th>
+                            <th>تلورانس</th>
+                            <th>دسته</th>
+                            <th>روش</th>
+                            <th>تگ‌ها</th>
+                            <th>عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr data-section="{{ item.section_id }}" data-kpi="{{ item.is_kpi|lower }}" data-tags="{{ item.tags or '' }}">
+                            <td><span class="badge-soft-primary">{{ item.section.name }}</span></td>
+                            <td class="fw-semibold">{{ item.title }}</td>
+                            <td>
+                                {% if item.field_type == 'number' %}
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">عددی</span>
+                                {% elif item.field_type == 'checkbox' %}
+                                    <span class="badge bg-success bg-opacity-10 text-success">چک‌باکس</span>
+                                {% elif item.field_type == 'select' %}
+                                    <span class="badge bg-warning bg-opacity-10 text-warning">انتخابی</span>
+                                {% else %}
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary">متن</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.unit or '—' }}</td>
+                            <td>
+                                {% if item.is_kpi %}
+                                    <span class="badge-soft-warning"><i class="fas fa-star"></i> KPI</span>
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.target_value or '—' }}</td>
+                            <td>{{ item.tolerance or '۱۰' }}</td>
+                            <td>
+                                <span class="badge-soft-info">
+                                    {{ {'efficiency':'کارایی','quality':'کیفیت','time':'زمان','cost':'هزینه','general':'عمومی'}.get(item.category, item.category) }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge-soft-secondary">
+                                    {{ {'linear':'خطی','sigmoid':'سیگموئید','step':'گام'}.get(item.scoring_method, item.scoring_method) }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if item.tags %}
+                                    {% for tag in item.tags.split(',') %}
+                                        <span class="badge-tag">{{ tag }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary btn-edit-item" 
+                                        data-bs-toggle="modal" data-bs-target="#editModal"
+                                        data-id="{{ item.id }}"
+                                        data-title="{{ item.title }}"
+                                        data-section="{{ item.section_id }}"
+                                        data-field_type="{{ item.field_type }}"
+                                        data-unit="{{ item.unit }}"
+                                        data-default_value="{{ item.default_value }}"
+                                        data-options="{{ item.options }}"
+                                        data-is_kpi="{{ item.is_kpi|lower }}"
+                                        data-target="{{ item.target_value or '' }}"
+                                        data-tolerance="{{ item.tolerance or 10 }}"
+                                        data-category="{{ item.category }}"
+                                        data-scoring_method="{{ item.scoring_method }}"
+                                        data-tags="{{ item.tags or '' }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if not items %}
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-inbox fa-3x d-block mb-3 opacity-25"></i>
+                <p>هیچ آیتمی در سیستم ثبت نشده است.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ===== مودال ویرایش آیتم ===== -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content rounded-4">
+            <form method="POST" action="" id="editForm">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit text-primary"></i> ویرایش آیتم</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="item_id" id="editItemId">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">بخش <span class="text-danger">*</span></label>
+                            <select name="section_id" id="editSection" class="form-select rounded-4" required>
+                                {% for sec in sections %}
+                                <option value="{{ sec.id }}">{{ sec.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">عنوان آیتم <span class="text-danger">*</span></label>
+                            <input type="text" name="title" id="editTitle" class="form-control rounded-4" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">نوع فیلد</label>
+                            <select name="field_type" id="editFieldType" class="form-select rounded-4">
+                                <option value="text">متن</option>
+                                <option value="number">عدد</option>
+                                <option value="checkbox">چک‌باکس</option>
+                                <option value="select">انتخاب</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">واحد</label>
+                            <input type="text" name="unit" id="editUnit" class="form-control rounded-4" placeholder="مثلاً: دقیقه">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">مقدار پیش‌فرض</label>
+                            <input type="text" name="default_value" id="editDefaultValue" class="form-control rounded-4">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">گزینه‌ها (برای select)</label>
+                            <input type="text" name="options" id="editOptions" class="form-control rounded-4" placeholder="با کاما جدا کنید">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">هدف (Target)</label>
+                            <input type="number" step="any" name="target_value" id="editTarget" class="form-control rounded-4" placeholder="مقدار هدف">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">تلورانس</label>
+                            <input type="number" step="any" name="tolerance" id="editTolerance" class="form-control rounded-4" placeholder="۱۰">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">دسته</label>
+                            <select name="category" id="editCategory" class="form-select rounded-4">
+                                <option value="general">عمومی</option>
+                                <option value="efficiency">کارایی</option>
+                                <option value="quality">کیفیت</option>
+                                <option value="time">زمان</option>
+                                <option value="cost">هزینه</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">روش امتیازدهی</label>
+                            <select name="scoring_method" id="editScoringMethod" class="form-select rounded-4">
+                                <option value="linear">خطی</option>
+                                <option value="sigmoid">سیگموئید</option>
+                                <option value="step">گام</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-center">
+                            <div class="form-check">
+                                <input type="checkbox" name="is_kpi" value="1" id="editIsKpi" class="form-check-input">
+                                <label class="form-check-label fw-semibold" for="editIsKpi">
+                                    <i class="fas fa-star text-warning"></i> آیتم KPI
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-tags text-primary"></i> تگ‌ها
+                                <span class="text-muted small">(برای گزارشات پویا)</span>
+                            </label>
+                            <div class="tag-select-container" id="editTagsContainer">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="tags" value="production_actual" id="editTag_production_actual">
+                                    <label class="form-check-label" for="editTag_production_actual">تولید واقعی</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="tags" value="production_plan" id="editTag_production_plan">
+                                    <label class="form-check-label" for="editTag_production_plan">تولید برنامه</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="tags" value="efficiency" id="editTag_efficiency">
+                                    <label class="form-check-label" for="editTag_efficiency">راندمان</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="tags" value="oee" id="editTag_oee">
+                                    <label class="form-check-label" for="editTag_oee">اثربخشی کلی (OEE)</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="tags" value="stop_total" id="editTag_stop_total">
+                                    <label class="form-check-label" for="editTag_stop_total">مجموع توقف</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="tags" value="waste_total" id="editTag_waste_total">
+                                    <label class="form-check-label" for="editTag_waste_total">کل ضایعات</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="tags" value="bottleneck" id="editTag_bottleneck">
+                                    <label class="form-check-label" for="editTag_bottleneck">گلوگاه خط</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="tags" value="line_balance" id="editTag_line_balance">
+                                    <label class="form-check-label" for="editTag_line_balance">هماهنگی خط</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="tags" value="quality" id="editTag_quality">
+                                    <label class="form-check-label" for="editTag_quality">کیفیت</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="tags" value="performance" id="editTag_performance">
+                                    <label class="form-check-label" for="editTag_performance">عملکرد</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="tags" value="general" id="editTag_general">
+                                    <label class="form-check-label" for="editTag_general">عمومی</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-4" data-bs-dismiss="modal">انصراف</button>
+                    <button type="submit" class="btn btn-settings btn-settings-primary">
+                        <i class="fas fa-save"></i> ذخیره تغییرات
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(function(){
+    // ===== تب‌ها =====
+    $('.tab-btn').on('click', function() {
+        const tabId = $(this).data('tab');
+        $('.tab-btn').removeClass('active');
+        $(this).addClass('active');
+        $('.tab-panel').removeClass('active');
+        $('#' + tabId).addClass('active');
+    });
+
+    // ===== جستجو =====
+    $('#searchItems').on('keyup', function() {
+        const query = $(this).val().toLowerCase().trim();
+        $('#itemsTable tbody tr').each(function() {
+            const text = $(this).text().toLowerCase();
+            $(this).toggle(text.includes(query));
+        });
+    });
+
+    // ===== فیلتر بخش =====
+    $('#filterSection').on('change', function() {
+        const val = $(this).val();
+        $('#itemsTable tbody tr').each(function() {
+            if (val === 'all' || $(this).data('section') == val) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+        $('#filterKpi').trigger('change');
+        $('#filterTag').trigger('change');
+    });
+
+    // ===== فیلتر KPI =====
+    $('#filterKpi').on('change', function() {
+        const val = $(this).val();
+        $('#itemsTable tbody tr').each(function() {
+            const isKpi = $(this).data('kpi') === 'true';
+            if (val === 'all') {
+                $(this).show();
+            } else if (val === 'kpi' && isKpi) {
+                $(this).show();
+            } else if (val === 'nonkpi' && !isKpi) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+        const sectionVal = $('#filterSection').val();
+        if (sectionVal !== 'all') {
+            $('#itemsTable tbody tr').each(function() {
+                if ($(this).data('section') != sectionVal) {
+                    $(this).hide();
+                }
+            });
+        }
+        $('#filterTag').trigger('change');
+    });
+
+    // ===== فیلتر تگ =====
+    $('#filterTag').on('change', function() {
+        const tag = $(this).val();
+        $('#itemsTable tbody tr').each(function() {
+            if (tag === 'all') {
+                $(this).show();
+            } else {
+                const tags = $(this).data('tags') || '';
+                if (tags.includes(tag)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            }
+        });
+        const sectionVal = $('#filterSection').val();
+        if (sectionVal !== 'all') {
+            $('#itemsTable tbody tr').each(function() {
+                if ($(this).data('section') != sectionVal) {
+                    $(this).hide();
+                }
+            });
+        }
+        const kpiVal = $('#filterKpi').val();
+        if (kpiVal !== 'all') {
+            $('#itemsTable tbody tr').each(function() {
+                const isKpi = $(this).data('kpi') === 'true';
+                if (kpiVal === 'kpi' && !isKpi) {
+                    $(this).hide();
+                } else if (kpiVal === 'nonkpi' && isKpi) {
+                    $(this).hide();
+                }
+            });
+        }
+    });
+
+
+
+// ===== تگ‌گذاری خودکار با نمایش وضعیت =====
+window.autoTagItems = function() {
+    const btn = document.getElementById('autoTagBtn');
+    const status = document.getElementById('tagStatus');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> در حال تگ‌گذاری...';
+    status.textContent = '⏳ در حال پردازش...';
+    status.style.color = '#0f2b5e';
+    
+    fetch('{{ url_for("auto_tag_items") }}')
+        .then(response => {
+            // ریدایرکت می‌شود، پس باید صفحه را ریلود کنیم
+            window.location.reload();
+        })
+        .catch(error => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-tags"></i> تگ‌گذاری خودکار';
+            status.textContent = '❌ خطا در تگ‌گذاری';
+            status.style.color = '#dc2626';
+            setTimeout(() => {
+                status.textContent = '';
+            }, 5000);
+        });
+};
+
+    // ===== پر کردن مودال ویرایش =====
+    $('#editModal').on('show.bs.modal', function(event) {
+        const button = $(event.relatedTarget);
+        const itemId = button.data('id');
+        const title = button.data('title');
+        const sectionId = button.data('section');
+        const fieldType = button.data('field_type');
+        const unit = button.data('unit');
+        const defaultValue = button.data('default_value');
+        const options = button.data('options');
+        const isKpi = button.data('is_kpi') === 'true';
+        const target = button.data('target');
+        const tolerance = button.data('tolerance');
+        const category = button.data('category');
+        const scoringMethod = button.data('scoring_method');
+        const tags = button.data('tags') ? button.data('tags').split(',') : [];
+        
+        // تنظیم action فرم
+        $('#editForm').attr('action', '/edit_item/' + itemId);
+        
+        // پر کردن فیلدها
+        $('#editItemId').val(itemId);
+        $('#editTitle').val(title);
+        $('#editSection').val(sectionId);
+        $('#editFieldType').val(fieldType);
+        $('#editUnit').val(unit);
+        $('#editDefaultValue').val(defaultValue);
+        $('#editOptions').val(options);
+        $('#editTarget').val(target);
+        $('#editTolerance').val(tolerance);
+        $('#editCategory').val(category);
+        $('#editScoringMethod').val(scoringMethod);
+        $('#editIsKpi').prop('checked', isKpi);
+        
+        // علامت‌زدن تگ‌ها
+        $('#editTagsContainer input[type="checkbox"]').prop('checked', false);
+        tags.forEach(function(tag) {
+            $('#editTag_' + tag).prop('checked', true);
+        });
+    });
+
+    // ===== بازنشانی مودال پس از بسته شدن =====
+    $('#editModal').on('hidden.bs.modal', function() {
+        $('#editForm')[0].reset();
+    });
+});
+</script>
 {% endblock %}

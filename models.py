@@ -10,6 +10,7 @@ class Section(db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(200))
     icon = db.Column(db.String(50))
+    weight = db.Column(db.Float, default=1.0)
     items = db.relationship('Item', backref='section', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
@@ -26,6 +27,17 @@ class Item(db.Model):
     is_kpi = db.Column(db.Boolean, default=False)
     weight = db.Column(db.Float, default=1.0)
     impact_type = db.Column(db.String(10), default='positive')
+    
+    # فیلدهای جدید
+    target_value = db.Column(db.Float, nullable=True)
+    tolerance = db.Column(db.Float, default=10.0)
+    category = db.Column(db.String(20), default='general')
+    scoring_method = db.Column(db.String(20), default='linear')
+    is_oee_component = db.Column(db.Boolean, default=False)
+    
+    # ✅ این خط را اضافه کنید
+    tags = db.Column(db.String(200), default='')
+
     records = db.relationship('Record', backref='item', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
@@ -40,6 +52,10 @@ class Record(db.Model):
     value = db.Column(db.String(200))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # فیلدهای جدید فاز ۲
+    changed_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    change_reason = db.Column(db.String(200))
 
 class Supervisor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -99,6 +115,7 @@ class User(UserMixin, db.Model):
     full_name = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
+    email = db.Column(db.String(100), nullable=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password).decode('utf-8')
@@ -108,3 +125,12 @@ class User(UserMixin, db.Model):
 
     def __repr__(self):
         return self.username
+
+class AlertLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    alert_type = db.Column(db.String(50))
+    message = db.Column(db.Text)
+    severity = db.Column(db.String(20))
+    is_sent = db.Column(db.Boolean, default=False)
+    sent_at = db.Column(db.DateTime, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)

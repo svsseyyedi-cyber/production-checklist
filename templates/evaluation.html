@@ -1,15 +1,66 @@
 {% extends "base.html" %}
 {% block page_title %}ارزیابی عملکرد{% endblock %}
 
+{% block styles %}
+<style>
+    .detail-row {
+        background: #f8fafc;
+    }
+    .detail-row td {
+        padding: 0 !important;
+    }
+    .detail-content {
+        padding: 1.2rem 2rem;
+        background: #f8fafc;
+        border-radius: 0 0 12px 12px;
+    }
+    .detail-content h6 {
+        color: #0f2b5e;
+        font-weight: 700;
+    }
+    .btn-detail {
+        border-radius: 30px;
+        padding: 0.2rem 1rem;
+        font-size: 0.75rem;
+        transition: all 0.2s;
+    }
+    .btn-detail:hover {
+        transform: scale(1.05);
+    }
+    .table-operator-detail {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .table-operator-detail th {
+        background: #eef2f6;
+        color: #1e293b;
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+        border: none;
+    }
+    .table-operator-detail td {
+        padding: 0.4rem 0.8rem;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.9rem;
+    }
+    .table-operator-detail tr:last-child td {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
+
 <div class="card shadow-sm border-0 rounded-4">
     <div class="card-header bg-transparent border-0">
         <h5 class="mb-0"><i class="fas fa-chart-bar text-primary me-2"></i>ارزیابی عملکرد افراد</h5>
-        <p class="text-muted small">امتیاز بر اساس بخش‌های اختصاص‌یافته به هر فرد محاسبه می‌شود.</p>
+        <p class="text-muted small">امتیاز بر اساس بخش‌های اختصاص‌یافته به هر فرد محاسبه می‌شود. امتیاز مسئولین شامل میانگین امتیاز اپراتورهای زیردست نیز می‌باشد.</p>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover table-striped mb-0">
+            <table class="table table-hover table-striped mb-0" id="evaluationTable">
                 <thead class="table-light">
                     <tr>
                         <th>نوع</th>
@@ -20,6 +71,7 @@
                         <th>ضایعات (ریال)</th>
                         <th>امتیاز</th>
                         <th>وضعیت</th>
+                        <th>جزئیات</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,7 +89,9 @@
                         <td>{{ "%.1f"|format(item.efficiency) }}%</td>
                         <td>{{ item.stops|int }}</td>
                         <td>{{ "%.0f"|format(item.waste) }}</td>
-                        <td class="fw-bold">{{ "%.1f"|format(item.score) }}</td>
+                        <td class="fw-bold {% if item.score >= 80 %}text-success{% elif item.score >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ "%.1f"|format(item.score) }}
+                        </td>
                         <td>
                             {% if item.score >= 80 %}
                                 <span class="badge bg-success">عالی</span>
@@ -47,10 +101,73 @@
                                 <span class="badge bg-danger">نیاز به بهبود</span>
                             {% endif %}
                         </td>
+                        <td>
+                            {% if item.type == 'supervisor' and item.operator_scores %}
+                                <button class="btn btn-sm btn-outline-primary btn-detail" 
+                                        type="button" 
+                                        data-bs-toggle="collapse" 
+                                        data-bs-target="#ops-{{ loop.index }}" 
+                                        aria-expanded="false">
+                                    <i class="fas fa-users"></i> {{ item.operator_scores|length }}
+                                </button>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
                     </tr>
+                    <!-- ردیف جزئیات اپراتورهای زیردست (فقط برای مسئولین) -->
+                    {% if item.type == 'supervisor' and item.operator_scores %}
+                    <tr class="collapse detail-row" id="ops-{{ loop.index }}">
+                        <td colspan="9">
+                            <div class="detail-content">
+                                <div class="d-flex align-items-center gap-2 mb-3">
+                                    <i class="fas fa-users text-primary fa-lg"></i>
+                                    <h6 class="mb-0">امتیاز اپراتورهای زیردست ({{ item.person.name }})</h6>
+                                    <span class="badge bg-light text-dark ms-2">
+                                        میانگین: {{ "%.1f"|format(item.operator_scores|map(attribute='score')|sum / item.operator_scores|length) }}
+                                    </span>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-operator-detail">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>نام اپراتور</th>
+                                                <th>تعداد بخش‌ها</th>
+                                                <th>امتیاز</th>
+                                                <th>وضعیت</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for op in item.operator_scores %}
+                                            <tr>
+                                                <td>{{ loop.index }}</td>
+                                                <td class="fw-semibold">{{ op.operator_name }}</td>
+                                                <td>{{ op.sections_count }}</td>
+                                                <td class="fw-bold {% if op.score >= 80 %}text-success{% elif op.score >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                                                    {{ "%.1f"|format(op.score) }}
+                                                </td>
+                                                <td>
+                                                    {% if op.score >= 80 %}
+                                                        <span class="badge bg-success">عالی</span>
+                                                    {% elif op.score >= 60 %}
+                                                        <span class="badge bg-warning">متوسط</span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger">نیاز به بهبود</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
                     {% else %}
                     <tr>
-                        <td colspan="8" class="text-center text-muted py-4">
+                        <td colspan="9" class="text-center text-muted py-4">
                             <i class="fas fa-chart-simple fa-2x d-block mb-2"></i>
                             داده‌ای برای ارزیابی وجود ندارد. ابتدا بخش‌ها را به افراد اختصاص دهید.
                         </td>
@@ -59,6 +176,17 @@
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
+
+<!-- نمودار راداری -->
+<div class="card shadow-sm border-0 rounded-4 mt-4">
+    <div class="card-header bg-transparent border-0">
+        <h5 class="mb-0"><i class="fas fa-chart-pie text-primary me-2"></i>نمودار مقایسه‌ای دسته‌ها</h5>
+        <p class="text-muted small">امتیاز هر فرد در دسته‌های مختلف (کارایی، کیفیت، زمان، هزینه، عمومی)</p>
+    </div>
+    <div class="card-body">
+        <canvas id="radarChart" height="300"></canvas>
     </div>
 </div>
 
@@ -96,4 +224,55 @@
         </div>
     </div>
 </div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+$(function(){
+    // ===== نمودار راداری =====
+    const personData = {{ person_performance|tojson|safe }};
+    const categories = new Set();
+    personData.forEach(p => {
+        if (p.category_scores) {
+            Object.keys(p.category_scores).forEach(cat => categories.add(cat));
+        }
+    });
+    const categoryList = Array.from(categories);
+    if (categoryList.length > 0 && personData.length > 0) {
+        const ctx = document.getElementById('radarChart').getContext('2d');
+        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+        const datasets = personData.map((p, idx) => ({
+            label: p.person.name,
+            data: categoryList.map(cat => p.category_scores[cat] || 0),
+            backgroundColor: colors[idx % colors.length] + '40',
+            borderColor: colors[idx % colors.length],
+            pointBackgroundColor: colors[idx % colors.length],
+            fill: true,
+        }));
+        new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: categoryList.map(c => {
+                    const map = {'efficiency':'کارایی', 'quality':'کیفیت', 'time':'زمان', 'cost':'هزینه', 'general':'عمومی'};
+                    return map[c] || c;
+                }),
+                datasets: datasets
+            },
+            options: {
+                scales: { r: { min: 0, max: 100 } },
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    }
+
+    // ===== بستن خودکار جزئیات با کلیک روی دکمه دیگر =====
+    $('.btn-detail').on('click', function() {
+        const target = $(this).data('bs-target');
+        // بستن سایر جزئیات باز
+        $('.detail-row').not($(target)).collapse('hide');
+    });
+});
+</script>
 {% endblock %}
