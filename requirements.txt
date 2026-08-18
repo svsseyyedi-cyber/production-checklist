@@ -6,3 +6,4 @@ flask-mail
 jdatetime
 gunicorn
 python-dotenv
+psycopg2-binary
