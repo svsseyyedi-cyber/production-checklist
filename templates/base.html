@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}سیستم مدیریت تولید - اروم تینار شیر{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
     <style>
-        /* ==================== RESET & BASE ==================== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Vazir', sans-serif;
@@ -20,17 +19,16 @@
         }
         a { text-decoration: none; color: inherit; }
 
-        /* ==================== HEADER ==================== */
         .header {
             background: #ffffff;
-            padding: 0.8rem 2rem;
+            padding: 0.8rem 1rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
             border-bottom: 1px solid #eef2f6;
         }
         .header .brand {
@@ -38,11 +36,11 @@
             align-items: center;
             gap: 0.75rem;
             font-weight: 700;
-            font-size: 1.3rem;
+            font-size: 1.1rem;
             color: #0f2b5e;
         }
         .header .brand i {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             background: linear-gradient(135deg, #0f2b5e, #3b82f6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -55,43 +53,32 @@
         .header .left-section {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: 0.8rem;
         }
         .header .date {
-            font-size: 0.95rem;
+            font-size: 0.8rem;
             color: #64748b;
             background: #f1f5f9;
-            padding: 0.4rem 1rem;
+            padding: 0.3rem 0.7rem;
             border-radius: 30px;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.3rem;
         }
         .header .date i { color: #3b82f6; }
         .header .user {
             display: flex;
             align-items: center;
-            gap: 0.6rem;
+            gap: 0.4rem;
             font-weight: 500;
+            font-size: 0.9rem;
             color: #1e293b;
         }
         .header .user i {
-            font-size: 1.6rem;
+            font-size: 1.3rem;
             color: #3b82f6;
         }
-        .header .logout-btn {
-            color: #dc2626;
-            font-size: 1.2rem;
-            transition: color 0.2s;
-            padding: 0.3rem 0.6rem;
-            border-radius: 8px;
-        }
-        .header .logout-btn:hover {
-            color: #b91c1c;
-            background: #fee2e2;
-        }
         .menu-toggle {
-            display: none;
             background: none;
             border: none;
             font-size: 1.6rem;
@@ -103,22 +90,37 @@
         }
         .menu-toggle:hover { background: #f1f5f9; }
 
-        /* ==================== SIDEBAR ==================== */
-        .sidebar {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            width: 260px;
-            height: calc(100vh - 70px);
+        /* ===== منوی کناری ===== */
+        .sidebar-overlay {
+            display: none;
             position: fixed;
-            top: 70px;
-            right: 0;
-            box-shadow: -4px 0 30px rgba(0,0,0,0.04);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 998;
+        }
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -280px;
+            width: 280px;
+            height: 100vh;
+            background: #ffffff;
+            box-shadow: -4px 0 30px rgba(0,0,0,0.1);
             overflow-y: auto;
             padding: 1.5rem 0.8rem;
-            border-left: 1px solid rgba(255,255,255,0.5);
-            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 99;
+            transition: right 0.3s ease;
+            z-index: 999;
+            border-left: 1px solid #eef2f6;
+        }
+        .sidebar.open {
+            right: 0;
         }
         .sidebar::-webkit-scrollbar { width: 3px; }
         .sidebar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -142,14 +144,12 @@
             font-weight: 500;
             font-size: 0.95rem;
             transition: all 0.2s;
-            position: relative;
         }
         .sidebar .nav-item i {
             width: 1.8rem;
             font-size: 1.2rem;
             text-align: center;
             color: #94a3b8;
-            transition: color 0.2s;
         }
         .sidebar .nav-item span { flex: 1; }
         .sidebar .nav-item:hover {
@@ -160,29 +160,16 @@
         .sidebar .nav-item.active {
             background: #eff6ff;
             color: #1e4f8a;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
         }
         .sidebar .nav-item.active i { color: #3b82f6; }
-        .sidebar .nav-item.active::before {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: 20%;
-            height: 60%;
-            width: 4px;
-            background: #3b82f6;
-            border-radius: 0 4px 4px 0;
-        }
 
-        /* ==================== MAIN CONTENT ==================== */
+        /* ===== محتوای اصلی ===== */
         .main-content {
-            margin-right: 260px;
-            padding: 2rem 2rem 1rem;
+            padding: 1rem;
             flex: 1;
             min-height: calc(100vh - 70px - 60px);
         }
 
-        /* ==================== CARDS ==================== */
         .card {
             border: none;
             border-radius: 20px;
@@ -194,39 +181,35 @@
         }
         .card:hover {
             box-shadow: 0 12px 40px rgba(0,0,0,0.07);
-            transform: translateY(-2px);
         }
         .card-header {
             background: transparent;
-            padding: 1.2rem 1.8rem;
+            padding: 1rem 1.2rem;
             border-bottom: 1px solid #f1f5f9;
             font-weight: 600;
-            font-size: 1.05rem;
+            font-size: 1rem;
             display: flex;
             align-items: center;
             gap: 0.6rem;
         }
         .card-header i { color: #3b82f6; }
-        .card-body { padding: 1.8rem; }
+        .card-body { padding: 1.2rem; }
 
-        /* ==================== FOOTER ==================== */
         .footer {
             background: #ffffff;
-            padding: 1rem 2rem;
+            padding: 0.8rem 1rem;
             text-align: center;
             border-top: 1px solid #eef2f6;
             color: #94a3b8;
-            font-size: 0.85rem;
-            margin-right: 260px;
+            font-size: 0.75rem;
         }
-        .footer span { margin: 0 0.5rem; }
+        .footer span { margin: 0 0.3rem; }
 
-        /* ==================== BUTTONS ==================== */
         .btn-primary-custom {
             background: linear-gradient(135deg, #0f2b5e, #3b82f6);
             border: none;
             color: #fff;
-            padding: 0.5rem 1.5rem;
+            padding: 0.4rem 1.2rem;
             border-radius: 30px;
             font-weight: 500;
             transition: all 0.3s;
@@ -238,50 +221,59 @@
             color: #fff;
         }
 
-        /* ==================== UTILITY ==================== */
-        .badge-soft {
-            background: #eff6ff;
-            color: #1e4f8a;
-            padding: 0.3rem 0.8rem;
-            border-radius: 30px;
-            font-size: 0.75rem;
-        }
-
-        /* ==================== ANIMATIONS ==================== */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .main-content { animation: fadeInUp 0.4s ease-out; }
 
-        /* ==================== RESPONSIVE ==================== */
-        @media (max-width: 992px) {
-            .sidebar {
-                transform: translateX(100%);
-                width: 280px;
-                right: 0;
-                background: rgba(255,255,255,0.98);
-            }
-            .sidebar.open { transform: translateX(0); }
-            .main-content,
-            .footer { margin-right: 0; }
-            .menu-toggle { display: block; }
-            .header .date { display: none; }
+        .badge-soft {
+            background: #eff6ff;
+            color: #1e4f8a;
+            padding: 0.2rem 0.6rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
         }
-        @media (max-width: 576px) {
-            .header { padding: 0.5rem 1rem; }
+
+        /* ===== واکنش‌گرایی ===== */
+        @media (max-width: 768px) {
             .header .brand { font-size: 1rem; }
-            .header .brand i { font-size: 1.4rem; }
-            .main-content { padding: 1rem; }
-            .card-header { padding: 1rem; }
-            .card-body { padding: 1rem; }
+            .header .brand i { font-size: 1.3rem; }
+            .header .date { display: none; }
+            .header .user span { display: none; }
+            .main-content { padding: 0.8rem; }
+            .card-header { padding: 0.8rem; }
+            .card-body { padding: 0.8rem; }
+        }
+        @media (min-width: 769px) {
+            .menu-toggle { display: none; }
+            .sidebar-overlay { display: none !important; }
+            .sidebar {
+                position: fixed;
+                right: 0;
+                top: 70px;
+                width: 260px;
+                height: calc(100vh - 70px);
+                box-shadow: -4px 0 30px rgba(0,0,0,0.04);
+                border-left: 1px solid #eef2f6;
+                transition: none;
+                padding: 1.5rem 0.8rem;
+                background: rgba(255,255,255,0.85);
+                backdrop-filter: blur(12px);
+            }
+            .main-content {
+                margin-right: 260px;
+                padding: 2rem 2rem 1rem;
+            }
+            .footer {
+                margin-right: 260px;
+            }
         }
     </style>
     {% block styles %}{% endblock %}
 </head>
 <body>
 
-    <!-- ==================== HEADER ==================== -->
     <header class="header">
         <div class="brand">
             <i class="fas fa-industry"></i>
@@ -292,16 +284,23 @@
                 <i class="fas fa-calendar-alt"></i>
                 {{ jalali(now) }}
             </div>
-<div class="user">
-    <i class="fas fa-user-circle"></i>
-    <span class="d-none d-sm-inline">{{ username if username else 'کاربر' }}</span>
-    <a href="{{ url_for('change_password') }}" class="text-muted ms-2" title="تغییر رمز عبور" style="font-size:0.8rem;">
-        <i class="fas fa-key"></i>
-    </a>
-</div>
+            <div class="user">
+                <i class="fas fa-user-circle"></i>
+                <span class="d-none d-sm-inline">{{ username }}</span>
+            </div>
+            <a href="{{ url_for('logout') }}" class="text-danger ms-1" title="خروج">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
     </header>
 
-    <!-- ==================== SIDEBAR ==================== -->
+    <!-- لایه تاریک پشت منو (فقط در موبایل) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- منوی کناری -->
     <aside class="sidebar" id="sidebar">
         <div class="nav-section">منوی اصلی</div>
         <a href="{{ url_for('index') }}" class="nav-item {% if request.endpoint == 'index' %}active{% endif %}">
@@ -333,85 +332,100 @@
         <a href="{{ url_for('assignments') }}" class="nav-item {% if request.endpoint == 'assignments' %}active{% endif %}">
             <i class="fas fa-link"></i><span>تخصیص بخش‌ها</span>
         </a>
+        <a href="{{ url_for('item_weights') }}" class="nav-item {% if request.endpoint == 'item_weights' %}active{% endif %}">
+            <i class="fas fa-weight-scale"></i><span>وزن آیتم‌ها</span>
+        </a>
         <a href="{{ url_for('evaluation') }}" class="nav-item {% if request.endpoint == 'evaluation' %}active{% endif %}">
             <i class="fas fa-chart-simple"></i><span>ارزیابی عملکرد</span>
-        </a>
-        <a href="{{ url_for('item_weights') }}" class="nav-item {% if request.endpoint == 'item_weights' %}active{% endif %}">
-            <i class="fas fa-weight-hanging"></i><span>وزن آیتم‌ها</span>
-        </a>
-        <a href="{{ url_for('final_report') }}" class="nav-item {% if request.endpoint == 'final_report' %}active{% endif %}">
-            <i class="fas fa-file-pdf"></i><span>گزارش نهایی</span>
         </a>
         <a href="{{ url_for('settings') }}" class="nav-item {% if request.endpoint == 'settings' %}active{% endif %}">
             <i class="fas fa-cogs"></i><span>تنظیمات</span>
         </a>
+        <a href="{{ url_for('final_report') }}" class="nav-item {% if request.endpoint == 'final_report' %}active{% endif %}">
+            <i class="fas fa-file-pdf"></i><span>گزارش نهایی</span>
+        </a>
     </aside>
 
-    <!-- ==================== MAIN CONTENT ==================== -->
     <main class="main-content">
-        <!-- FLASH MESSAGES -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
                     <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show shadow-sm rounded-4 border-0">
-                        {{ message | safe }}
+                        {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
-        <!-- PAGE TITLE -->
-        <div class="d-flex align-items-center gap-2 mb-4">
-            <h1 class="h3 mb-0 fw-bold">{% block page_title %}صفحه اصلی{% endblock %}</h1>
-            <span class="badge-soft">نسخه 3.0</span>
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <h1 class="h4 mb-0 fw-bold">{% block page_title %}صفحه اصلی{% endblock %}</h1>
+            <span class="badge-soft">نسخه ۳.۰</span>
         </div>
 
-        <!-- PAGE CONTENT -->
         {% block content %}{% endblock %}
     </main>
 
-    <!-- ==================== FOOTER ==================== -->
     <footer class="footer">
-        <span>© 2025 اروم تینار شیر</span>
+        <span>© ۲۰۲۵ اروم تینار شیر</span>
         <span>•</span>
-        <span>طراحی شده با <i class="fas fa-heart text-danger" style="font-size:0.8rem;"></i> برای بهره‌وری</span>
+        <span>طراحی شده با <i class="fas fa-heart text-danger" style="font-size:0.7rem;"></i></span>
     </footer>
 
-    <!-- ==================== SCRIPTS ==================== -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // ====== SIDEBAR TOGGLE (Mobile) ======
-        const toggle = document.getElementById('menuToggle');
-        const sidebar = document.getElementById('sidebar');
-        toggle.addEventListener('click', function(e) {
-            e.stopPropagation();
-            sidebar.classList.toggle('open');
-        });
-        document.addEventListener('click', function(e) {
-            if (window.innerWidth <= 992) {
-                if (!sidebar.contains(e.target) && !toggle.contains(e.target)) {
-                    sidebar.classList.remove('open');
-                }
-            }
-        });
-        document.querySelectorAll('.sidebar .nav-item').forEach(item => {
-            item.addEventListener('click', function() {
-                if (window.innerWidth <= 992) {
-                    sidebar.classList.remove('open');
-                }
-            });
-        });
+        (function() {
+            const toggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
 
-        // ====== AUTO-DISMISS ALERTS ======
-        setTimeout(function() {
-            document.querySelectorAll('.alert').forEach(function(el) {
-                const bsAlert = new bootstrap.Alert(el);
-                bsAlert.close();
+            function openMenu() {
+                sidebar.classList.add('open');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeMenu() {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (sidebar.classList.contains('open')) {
+                    closeMenu();
+                } else {
+                    openMenu();
+                }
             });
-        }, 5000);
+
+            overlay.addEventListener('click', closeMenu);
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+                    closeMenu();
+                }
+            });
+
+            // بستن منو با کلیک روی آیتم‌ها (در موبایل)
+            document.querySelectorAll('.sidebar .nav-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        closeMenu();
+                    }
+                });
+            });
+
+            // اگر پنجره بزرگتر شد و منو باز بود، بسته شود
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('open')) {
+                    closeMenu();
+                }
+            });
+        })();
     </script>
     {% block scripts %}{% endblock %}
 </body>
