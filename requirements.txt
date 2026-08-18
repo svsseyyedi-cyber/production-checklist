@@ -5,3 +5,4 @@ flask-bcrypt
 flask-mail
 jdatetime
 gunicorn
+python-dotenv
