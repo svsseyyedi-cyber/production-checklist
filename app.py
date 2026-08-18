@@ -16,8 +16,19 @@ load_dotenv()
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///checklist.db'
+import os  # اگر این خط از قبل در بالای فایل وجود ندارد، آن را اضافه کنید
+
+# ========== تنظیمات دیتابیس ==========
+if os.environ.get('DATABASE_URL'):
+    # اگر در محیط تولید (Render) هستیم و DATABASE_URL تنظیم شده
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+else:
+    # در محیط محلی از SQLite استفاده کن
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///checklist.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'fallback-secret-key')
 
 app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
