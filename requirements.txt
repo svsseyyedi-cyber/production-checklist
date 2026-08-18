@@ -2,5 +2,6 @@ flask
 flask-sqlalchemy
 flask-login
 flask-bcrypt
+flask-mail
 jdatetime
 gunicorn
